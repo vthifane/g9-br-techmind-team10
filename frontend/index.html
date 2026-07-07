@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechMind | Biblioteca Inteligente</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="app-header">
+        <button class="brand" type="button" data-view="home" aria-label="Voltar para a tela principal">
+            <span class="brand-mark">TM</span>
+            <span>
+                <strong>TechMind</strong>
+                <small>Conhecimento técnico organizado</small>
+            </span>
+        </button>
+
+        <nav class="top-actions" aria-label="Acoes principais">
+            <button class="ghost-button" type="button" data-view="library">Biblioteca</button>
+            <button class="login-button" type="button">Login</button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero screen is-active" id="home-screen" aria-labelledby="home-title">
+            <div class="hero-copy">
+                <p class="eyebrow">Biblioteca inteligente para conteúdo técnico</p>
+                <h1 id="home-title">Organize conhecimento técnico em uma biblioteca fácil de consultar.</h1>
+                <p class="hero-text">
+                    Cadastre artigos, anotações, documentações e materiais de estudo. O TechMind ajuda a classificar,
+                    encontrar e reutilizar conteúdos técnicos com mais agilidade.
+                </p>
+            </div>
+
+            <form class="catalog-form" id="catalog-form">
+                <label for="content-title">Título</label>
+                <input id="content-title" name="title" type="text" placeholder="Ex.: Introdução ao Spring Boot"
+                    required>
+
+                <label for="content-text">Texto</label>
+                <textarea id="content-text" name="text" rows="8"
+                    placeholder="Cole aqui anotações, resumo de artigo, trecho de documentação ou conteúdo de estudo."
+                    required></textarea>
+
+                <label for="content-category">Deseja já informar a categoria?</label>
+                <select id="content-category" name="category">
+                    <option value="">Não informar agora</option>
+                    <option value="Backend">Backend</option>
+                    <option value="Frontend">Frontend</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Cloud">Cloud</option>
+                    <option value="Database">Database</option>
+                    <option value="Security">Security</option>
+                </select>
+
+                <button class="primary-button" type="submit">Catalogar conteúdo</button>
+            </form>
+        </section>
+
+        <section class="success-panel screen" id="success-screen" aria-live="polite">
+            <div class="status-symbol">OK</div>
+            <h2>Texto enviado com sucesso!</h2>
+            <p>Em breve estará disponível na sua biblioteca pessoal.</p>
+            <button class="primary-button" type="button" data-view="library">Ir para minha biblioteca</button>
+        </section>
+
+        <section class="library screen" id="library-screen" aria-labelledby="library-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Biblioteca pessoal</p>
+                    <h2 id="library-title">Encontre conteúdos por busca ou categoria.</h2>
+                </div>
+                <button class="ghost-button" type="button" data-view="home">Novo conteúdo</button>
+            </div>
+
+            <label class="search-label" for="library-search">Buscar por texto ou palavra-chave</label>
+            <input id="library-search" class="search-input" type="search"
+                placeholder="Ex.: Java, API REST, TF-IDF, Cloud">
+
+            <div class="folder-grid" id="category-grid" aria-label="Categorias"></div>
+            <div class="empty-state" id="library-empty">Nenhum conteúdo encontrado para esta busca.</div>
+        </section>
+
+        <section class="category-page screen" id="category-screen" aria-labelledby="category-title">
+            <button class="back-button" type="button" data-view="library">Voltar para biblioteca</button>
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Categoria selecionada</p>
+                    <h2 id="category-title">Conteúdos</h2>
+                </div>
+            </div>
+            <div class="content-grid" id="content-grid"></div>
+            <div class="empty-state" id="category-empty">Ainda não há conteúdos nesta categoria.</div>
+        </section>
+        <section class="document-page screen" id="document-screen" aria-labelledby="document-title">
+            <button class="back-button" type="button" id="back-to-category">Voltar para categoria</button>
+
+            <article class="document-view">
+                <span class="file-icon document-icon" aria-hidden="true"></span>
+                <p class="eyebrow" id="document-category">Categoria</p>
+                <h2 id="document-title">Título do documento</h2>
+                <p id="document-text"></p>
+            </article>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
