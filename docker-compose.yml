@@ -1,0 +1,7 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: techmind-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
