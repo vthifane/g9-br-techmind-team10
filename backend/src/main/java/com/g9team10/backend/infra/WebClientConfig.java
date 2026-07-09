@@ -1,4 +1,4 @@
-package com.g9team10.backend.config;
+package com.g9team10.backend.infra;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
