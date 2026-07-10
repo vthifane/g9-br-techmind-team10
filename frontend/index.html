@@ -10,7 +10,7 @@
 
 <body>
     <header class="app-header">
-        <button class="brand" type="button" data-view="home" aria-label="Voltar para a tela principal">
+        <button class="brand" type="button" data-view="library" aria-label="Ir para biblioteca">
             <span class="brand-mark">TM</span>
             <span>
                 <strong>TechMind</strong>
@@ -18,21 +18,87 @@
             </span>
         </button>
 
-        <nav class="top-actions" aria-label="Acoes principais">
+        <nav class="top-actions" aria-label="Ações principais">
             <button class="ghost-button" type="button" data-view="library">Biblioteca</button>
+            <button class="ghost-button" type="button" data-view="submit">Enviar conteúdo</button>
             <button class="login-button" type="button">Login</button>
         </nav>
     </header>
 
     <main>
-        <section class="hero screen is-active" id="home-screen" aria-labelledby="home-title">
-            <div class="hero-copy">
-                <p class="eyebrow">Biblioteca inteligente para conteúdo técnico</p>
-                <h1 id="home-title">Organize conhecimento técnico em uma biblioteca fácil de consultar.</h1>
+        <section class="library screen is-active" id="library-screen" aria-labelledby="library-title">
+            <div class="library-hero">
+                <p class="eyebrow">Biblioteca inteligente</p>
+                <h1 id="library-title">Organize e acesse conhecimento técnico com precisão.</h1>
                 <p class="hero-text">
-                    Cadastre artigos, anotações, documentações e materiais de estudo. O TechMind ajuda a classificar,
-                    encontrar e reutilizar conteúdos técnicos com mais agilidade.
+                    Navegue por categorias, combine tags e localize rapidamente conteúdos relevantes para consulta,
+                    estudo e tomada de decisão técnica.
                 </p>
+            </div>
+
+            <div class="toolbar-card">
+                <div class="toolbar-header">
+                    <div>
+                        <p class="eyebrow">Biblioteca</p>
+                        <h2>Refine sua pesquisa</h2>
+                    </div>
+
+                    <button class="icon-button" type="button" id="toggle-search" aria-label="Adicionar tags manualmente">
+                        🔎
+                    </button>
+                </div>
+
+                <div class="manual-search" id="manual-search" hidden>
+                    <label class="search-label" for="library-search">Adicionar tags manualmente</label>
+                    <input id="library-search" class="search-input" type="search"
+                        placeholder="Digite uma tag. Ex.: Java, Docker, JWT">
+                    <div class="tag-suggestions" id="tag-suggestions" hidden></div>
+                </div>
+
+                <div class="tag-section">
+                    <div class="tag-group-list" id="tag-group-list" aria-label="Categorias principais"></div>
+                </div>
+
+                <div class="tag-section" id="subtag-section" hidden>
+                    <div class="subtag-list" id="subtag-list" aria-label="Tags relacionadas"></div>
+                </div>
+
+                <div class="selected-filter-panel">
+                    <div class="selected-tags" id="selected-tags">
+                        <span class="muted-text">Nenhuma tag selecionada.</span>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="primary-button compact" type="button" id="apply-filters">Filtrar</button>
+                    <button class="ghost-button" type="button" id="clear-filters">Limpar filtros</button>
+                </div>
+            </div>
+
+            <section class="results-section" aria-labelledby="results-title">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Resultados</p>
+                        <h2 id="results-title">Conteúdos encontrados</h2>
+                    </div>
+                    <span class="result-count" id="result-count">0 conteúdos</span>
+                </div>
+
+                <div class="content-grid" id="content-grid"></div>
+
+                <div class="empty-state is-visible" id="library-empty">
+                    Selecione uma ou mais tags e clique em Filtrar para consultar a biblioteca.
+                </div>
+            </section>
+        </section>
+
+        <section class="submit-page screen" id="submit-screen" aria-labelledby="submit-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Novo conteúdo</p>
+                    <h2 id="submit-title">Enviar texto para catalogação</h2>
+                </div>
+                <button class="ghost-button" type="button" data-view="library">Voltar para biblioteca</button>
             </div>
 
             <form class="catalog-form" id="catalog-form">
@@ -45,15 +111,15 @@
                     placeholder="Cole aqui anotações, resumo de artigo, trecho de documentação ou conteúdo de estudo."
                     required></textarea>
 
-                <label for="content-category">Deseja já informar a categoria?</label>
+                <label for="content-category">Categoria sugerida</label>
                 <select id="content-category" name="category">
-                    <option value="">Não informar agora</option>
-                    <option value="Backend">Backend</option>
-                    <option value="Frontend">Frontend</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="Cloud">Cloud</option>
-                    <option value="Database">Database</option>
-                    <option value="Security">Security</option>
+                    <option value="">Identificar automaticamente</option>
+                    <option value="backend">Backend</option>
+                    <option value="frontend">Frontend</option>
+                    <option value="data-science">Data Science</option>
+                    <option value="cloud">Cloud</option>
+                    <option value="database">Database</option>
+                    <option value="security">Security</option>
                 </select>
 
                 <button class="primary-button" type="submit">Catalogar conteúdo</button>
@@ -62,46 +128,18 @@
 
         <section class="success-panel screen" id="success-screen" aria-live="polite">
             <div class="status-symbol">OK</div>
-            <h2>Texto enviado com sucesso!</h2>
-            <p>Em breve estará disponível na sua biblioteca pessoal.</p>
-            <button class="primary-button" type="button" data-view="library">Ir para minha biblioteca</button>
+            <h2>Texto enviado com sucesso.</h2>
+            <p>O conteúdo foi catalogado e já está disponível para consulta na biblioteca.</p>
+            <button class="primary-button" type="button" data-view="library">Ir para biblioteca</button>
         </section>
 
-        <section class="library screen" id="library-screen" aria-labelledby="library-title">
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Biblioteca pessoal</p>
-                    <h2 id="library-title">Encontre conteúdos por busca ou categoria.</h2>
-                </div>
-                <button class="ghost-button" type="button" data-view="home">Novo conteúdo</button>
-            </div>
-
-            <label class="search-label" for="library-search">Buscar por texto ou palavra-chave</label>
-            <input id="library-search" class="search-input" type="search"
-                placeholder="Ex.: Java, API REST, TF-IDF, Cloud">
-
-            <div class="folder-grid" id="category-grid" aria-label="Categorias"></div>
-            <div class="empty-state" id="library-empty">Nenhum conteúdo encontrado para esta busca.</div>
-        </section>
-
-        <section class="category-page screen" id="category-screen" aria-labelledby="category-title">
-            <button class="back-button" type="button" data-view="library">Voltar para biblioteca</button>
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Categoria selecionada</p>
-                    <h2 id="category-title">Conteúdos</h2>
-                </div>
-            </div>
-            <div class="content-grid" id="content-grid"></div>
-            <div class="empty-state" id="category-empty">Ainda não há conteúdos nesta categoria.</div>
-        </section>
         <section class="document-page screen" id="document-screen" aria-labelledby="document-title">
-            <button class="back-button" type="button" id="back-to-category">Voltar para categoria</button>
+            <button class="back-button" type="button" data-view="library">Voltar para biblioteca</button>
 
             <article class="document-view">
-                <span class="file-icon document-icon" aria-hidden="true"></span>
                 <p class="eyebrow" id="document-category">Categoria</p>
                 <h2 id="document-title">Título do documento</h2>
+                <div class="document-tags" id="document-tags"></div>
                 <p id="document-text"></p>
             </article>
         </section>

@@ -1,143 +1,205 @@
-const categories = ["Backend", "Frontend", "Data Science", "Cloud", "Database", "Security"];
+const API_BASE_URL = "http://localhost:8080";
+const storageKey = "techmind.contents.v3";
+
+const fallbackTagCatalog = [
+  {
+    key: "backend",
+    label: "Backend",
+    subTags: [
+      { key: "java", label: "Java" },
+      { key: "spring-boot", label: "Spring Boot" },
+      { key: "api-rest", label: "API REST" },
+      { key: "dto", label: "DTO" },
+      { key: "validation", label: "Validation" }
+    ]
+  },
+  {
+    key: "frontend",
+    label: "Frontend",
+    subTags: [
+      { key: "html", label: "HTML" },
+      { key: "css", label: "CSS" },
+      { key: "javascript", label: "JavaScript" },
+      { key: "react", label: "React" },
+      { key: "responsive-design", label: "Responsive Design" }
+    ]
+  },
+  {
+    key: "data-science",
+    label: "Data Science",
+    subTags: [
+      { key: "python", label: "Python" },
+      { key: "pandas", label: "Pandas" },
+      { key: "scikit-learn", label: "Scikit-Learn" },
+      { key: "tf-idf", label: "TF-IDF" },
+      { key: "machine-learning", label: "Machine Learning" }
+    ]
+  },
+  {
+    key: "cloud",
+    label: "Cloud",
+    subTags: [
+      { key: "oci", label: "OCI" },
+      { key: "compute", label: "Compute" },
+      { key: "docker", label: "Docker" },
+      { key: "object-storage", label: "Object Storage" },
+      { key: "terraform", label: "Terraform" }
+    ]
+  },
+  {
+    key: "database",
+    label: "Database",
+    subTags: [
+      { key: "sql", label: "SQL" },
+      { key: "nosql", label: "NoSQL" },
+      { key: "h2", label: "H2" },
+      { key: "jpa", label: "JPA" },
+      { key: "repository", label: "Repository" }
+    ]
+  },
+  {
+    key: "security",
+    label: "Security",
+    subTags: [
+      { key: "authentication", label: "Authentication" },
+      { key: "authorization", label: "Authorization" },
+      { key: "jwt", label: "JWT" },
+      { key: "token", label: "Token" },
+      { key: "spring-security", label: "Spring Security" }
+    ]
+  }
+];
 
 const initialContents = [
   {
     id: "CNT-001",
     title: "Introdução ao Spring Boot",
     text: "Conceitos básicos para criação de APIs REST com Java e Spring Boot.",
-    category: "Backend"
+    category: "backend",
+    probability: 0.89,
+    tags: ["backend", "java", "spring-boot", "api-rest"]
   },
   {
     id: "CNT-002",
     title: "Validação de dados com Bean Validation",
     text: "Uso de anotações como @NotBlank e @Valid para validar entradas da API.",
-    category: "Backend"
+    category: "backend",
+    probability: 0.84,
+    tags: ["backend", "java", "validation", "dto"]
   },
   {
     id: "CNT-003",
-    title: "Tratamento de erros com ControllerAdvice",
-    text: "Padronização de respostas de erro em aplicações Spring Boot.",
-    category: "Backend"
-  },
-
-  {
-    id: "CNT-004",
     title: "Componentização com React",
     text: "Uso de componentes, estado e eventos para construir interfaces reutilizáveis.",
-    category: "Frontend"
+    category: "frontend",
+    probability: 0.91,
+    tags: ["frontend", "react", "javascript"]
+  },
+  {
+    id: "CNT-004",
+    title: "Design responsivo com CSS Grid",
+    text: "Organização de telas adaptáveis usando CSS, grid, media queries e espaçamentos fluidos.",
+    category: "frontend",
+    probability: 0.87,
+    tags: ["frontend", "css", "responsive-design"]
   },
   {
     id: "CNT-005",
-    title: "Formulários com JavaScript",
-    text: "Captura de dados do usuário, validação simples e manipulação do DOM.",
-    category: "Frontend"
+    title: "TF-IDF na classificação de textos",
+    text: "Representação numérica de textos para modelos de machine learning com Python.",
+    category: "data-science",
+    probability: 0.88,
+    tags: ["data-science", "python", "tf-idf", "machine-learning"]
   },
   {
     id: "CNT-006",
-    title: "Design responsivo com CSS Grid",
-    text: "Organização de telas adaptáveis usando grid, media queries e espaçamentos fluidos.",
-    category: "Frontend"
+    title: "Classificação com Scikit-Learn",
+    text: "Treinamento de modelos com pandas, scikit-learn e regressão logística.",
+    category: "data-science",
+    probability: 0.86,
+    tags: ["data-science", "python", "pandas", "scikit-learn"]
   },
-
   {
     id: "CNT-007",
-    title: "TF-IDF na classificação de textos",
-    text: "Representação numérica de textos para modelos de machine learning.",
-    category: "Data Science"
+    title: "Object Storage na OCI",
+    text: "Armazenamento de arquivos, modelos e resultados JSON em buckets da OCI.",
+    category: "cloud",
+    probability: 0.86,
+    tags: ["cloud", "oci", "object-storage"]
   },
   {
     id: "CNT-008",
-    title: "Regressão Logística para classificação",
-    text: "Modelo supervisionado usado para prever categorias a partir de atributos extraídos.",
-    category: "Data Science"
+    title: "Deploy com Docker em OCI Compute",
+    text: "Uso de uma máquina virtual para hospedar frontend, backend e serviços auxiliares com Docker.",
+    category: "cloud",
+    probability: 0.9,
+    tags: ["cloud", "oci", "compute", "docker"]
   },
   {
     id: "CNT-009",
-    title: "Similaridade textual com cosseno",
-    text: "Técnica usada para encontrar conteúdos relacionados a partir de vetores de texto.",
-    category: "Data Science"
+    title: "Consultas SQL com filtros",
+    text: "Uso de SELECT, WHERE e ORDER BY para recuperar dados específicos.",
+    category: "database",
+    probability: 0.84,
+    tags: ["database", "sql"]
   },
-
   {
     id: "CNT-010",
-    title: "Object Storage na OCI",
-    text: "Armazenamento de arquivos, modelos e resultados JSON em buckets.",
-    category: "Cloud"
+    title: "Persistência com JPA",
+    text: "Mapeamento de entidades Java para tabelas e uso de repositories.",
+    category: "database",
+    probability: 0.83,
+    tags: ["database", "jpa", "repository", "java"]
   },
   {
     id: "CNT-011",
-    title: "Deploy em OCI Compute",
-    text: "Uso de uma máquina virtual para hospedar frontend, backend e serviços auxiliares.",
-    category: "Cloud"
+    title: "Autenticação com JWT",
+    text: "Uso de token JWT para autenticar usuários em uma API Spring Security.",
+    category: "security",
+    probability: 0.82,
+    tags: ["security", "authentication", "jwt", "token", "spring-security"]
   },
   {
     id: "CNT-012",
-    title: "Infraestrutura como código com Terraform",
-    text: "Criação de recursos de cloud por meio de arquivos versionados no GitHub.",
-    category: "Cloud"
-  },
-
-  {
-    id: "CNT-013",
-    title: "Modelagem relacional básica",
-    text: "Definição de tabelas, chaves primárias e relacionamentos entre entidades.",
-    category: "Database"
-  },
-  {
-    id: "CNT-014",
-    title: "Consultas SQL com filtros",
-    text: "Uso de SELECT, WHERE e ORDER BY para recuperar dados específicos.",
-    category: "Database"
-  },
-  {
-    id: "CNT-015",
-    title: "Persistência com JPA",
-    text: "Mapeamento de entidades Java para tabelas em bancos relacionais.",
-    category: "Database"
-  },
-
-  {
-    id: "CNT-016",
-    title: "Autenticação com tokens",
-    text: "Uso de tokens para identificar usuários e proteger endpoints da aplicação.",
-    category: "Security"
-  },
-  {
-    id: "CNT-017",
-    title: "Controle de acesso por perfil",
-    text: "Definição de permissões diferentes para usuários comuns e administradores.",
-    category: "Security"
-  },
-  {
-    id: "CNT-018",
-    title: "Boas práticas para variáveis de ambiente",
-    text: "Proteção de senhas, chaves e dados sensíveis fora do código-fonte.",
-    category: "Security"
+    title: "Autorização em APIs",
+    text: "Controle de acesso a endpoints protegidos com regras de autorização.",
+    category: "security",
+    probability: 0.81,
+    tags: ["security", "authorization", "spring-security"]
   }
 ];
 
-const storageKey = "techmind.contents";
 const screens = {
-  home: document.querySelector("#home-screen"),
-  success: document.querySelector("#success-screen"),
   library: document.querySelector("#library-screen"),
-  category: document.querySelector("#category-screen"),
+  submit: document.querySelector("#submit-screen"),
+  success: document.querySelector("#success-screen"),
   document: document.querySelector("#document-screen")
 };
 
 const catalogForm = document.querySelector("#catalog-form");
 const searchInput = document.querySelector("#library-search");
-const categoryGrid = document.querySelector("#category-grid");
+const tagSuggestions = document.querySelector("#tag-suggestions");
+const toggleSearchButton = document.querySelector("#toggle-search");
+const manualSearch = document.querySelector("#manual-search");
+const tagGroupList = document.querySelector("#tag-group-list");
+const subtagSection = document.querySelector("#subtag-section");
+const subtagList = document.querySelector("#subtag-list");
+const selectedTagsContainer = document.querySelector("#selected-tags");
+const applyFiltersButton = document.querySelector("#apply-filters");
+const clearFiltersButton = document.querySelector("#clear-filters");
 const contentGrid = document.querySelector("#content-grid");
 const libraryEmpty = document.querySelector("#library-empty");
-const categoryEmpty = document.querySelector("#category-empty");
-const categoryTitle = document.querySelector("#category-title");
+const resultCount = document.querySelector("#result-count");
 const documentCategory = document.querySelector("#document-category");
 const documentTitle = document.querySelector("#document-title");
+const documentTags = document.querySelector("#document-tags");
 const documentText = document.querySelector("#document-text");
-const backToCategoryButton = document.querySelector("#back-to-category");
 
-let selectedCategory = "";
+let tagCatalog = [];
+let activeGroupKey = "";
+let selectedTags = [];
+let appliedTags = [];
+let hasSearched = false;
 
 function getContents() {
   const saved = localStorage.getItem(storageKey);
@@ -158,30 +220,166 @@ function createContentId() {
   return `CNT-${Date.now().toString().slice(-8)}`;
 }
 
-function suggestCategory(text) {
-  const normalized = text.toLowerCase();
+function normalizeText(value) {
+  return String(value)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll("-", " ")
+    .trim();
+}
 
-  if (normalized.includes("react") || normalized.includes("css") || normalized.includes("html")) {
-    return "Frontend";
+function getAllTagsFromCatalog() {
+  return tagCatalog.flatMap((group) => [
+    { key: group.key, label: group.label, groupKey: group.key },
+    ...group.subTags.map((tag) => ({
+      ...tag,
+      groupKey: group.key
+    }))
+  ]);
+}
+
+function getTagLabel(key) {
+  const tag = getAllTagsFromCatalog().find((item) => item.key === key);
+  return tag ? tag.label : key;
+}
+
+function getCategoryLabel(categoryKey) {
+  const group = tagCatalog.find((item) => item.key === categoryKey);
+  return group ? group.label : categoryKey;
+}
+
+function getCurrentTypedTag() {
+  const value = searchInput.value;
+  const parts = value.split(",");
+  return normalizeText(parts[parts.length - 1]);
+}
+
+function findTagByTerm(term) {
+  const normalizedTerm = normalizeText(term);
+
+  if (!normalizedTerm) {
+    return null;
   }
 
-  if (normalized.includes("python") || normalized.includes("tf-idf") || normalized.includes("modelo")) {
-    return "Data Science";
+  return getAllTagsFromCatalog().find((tag) => {
+    const normalizedKey = normalizeText(tag.key);
+    const normalizedLabel = normalizeText(tag.label);
+
+    return normalizedKey === normalizedTerm || normalizedLabel === normalizedTerm;
+  });
+}
+
+function addTagToSelection(tagKey) {
+  if (!selectedTags.includes(tagKey)) {
+    selectedTags = [...selectedTags, tagKey];
+  }
+}
+
+function clearManualSearch() {
+  searchInput.value = "";
+  tagSuggestions.hidden = true;
+  tagSuggestions.innerHTML = "";
+}
+
+function addTagFromSuggestion(tagKey) {
+  addTagToSelection(tagKey);
+  clearManualSearch();
+
+  renderTagGroups();
+  renderSubTags();
+  renderSelectedTags();
+}
+
+function processCommaSeparatedTags() {
+  if (!searchInput.value.includes(",")) {
+    return;
   }
 
-  if (normalized.includes("oci") || normalized.includes("cloud") || normalized.includes("bucket")) {
-    return "Cloud";
+  const parts = searchInput.value.split(",");
+  const pendingTerm = parts.pop();
+  let addedAnyTag = false;
+
+  parts.forEach((part) => {
+    const matchedTag = findTagByTerm(part);
+
+    if (matchedTag) {
+      addTagToSelection(matchedTag.key);
+      addedAnyTag = true;
+    }
+  });
+
+  searchInput.value = pendingTerm.trimStart();
+
+  if (addedAnyTag) {
+    renderTagGroups();
+    renderSubTags();
+    renderSelectedTags();
+  }
+}
+
+function renderTagSuggestions() {
+  processCommaSeparatedTags();
+
+  const typedTag = getCurrentTypedTag();
+  tagSuggestions.innerHTML = "";
+
+  if (!typedTag) {
+    tagSuggestions.hidden = true;
+    return;
   }
 
-  if (normalized.includes("sql") || normalized.includes("banco") || normalized.includes("database")) {
-    return "Database";
+  const suggestions = getAllTagsFromCatalog()
+    .filter((tag) => {
+      const normalizedKey = normalizeText(tag.key);
+      const normalizedLabel = normalizeText(tag.label);
+      const alreadySelected = selectedTags.includes(tag.key);
+
+      return !alreadySelected &&
+        (normalizedKey.includes(typedTag) || normalizedLabel.includes(typedTag));
+    })
+    .slice(0, 8);
+
+  if (suggestions.length === 0) {
+    tagSuggestions.hidden = true;
+    return;
   }
 
-  if (normalized.includes("seguranca") || normalized.includes("segurança") || normalized.includes("security") || normalized.includes("token")) {
-    return "Security";
+  suggestions.forEach((tag) => {
+    const button = document.createElement("button");
+    button.className = "suggestion-chip";
+    button.type = "button";
+    button.textContent = tag.label;
+
+    button.addEventListener("click", () => {
+      addTagFromSuggestion(tag.key);
+    });
+
+    tagSuggestions.appendChild(button);
+  });
+
+  tagSuggestions.hidden = false;
+}
+
+async function fetchTags() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/tags`);
+
+    if (!response.ok) {
+      throw new Error("Unable to load tag catalog.");
+    }
+
+    tagCatalog = await response.json();
+  } catch (error) {
+    tagCatalog = fallbackTagCatalog;
+    console.warn("Tag catalog API unavailable. Local catalog was loaded.", error);
   }
 
-  return "Backend";
+  activeGroupKey = "";
+  renderTagGroups();
+  renderSubTags();
+  renderSelectedTags();
+  renderContents();
 }
 
 function showScreen(screenName) {
@@ -189,76 +387,232 @@ function showScreen(screenName) {
   screens[screenName].classList.add("is-active");
 
   if (screenName === "library") {
-    renderLibrary();
+    renderContents();
   }
 }
 
-function renderLibrary() {
-  const searchTerm = searchInput.value.trim().toLowerCase();
+function renderTagGroups() {
+  tagGroupList.innerHTML = "";
+
+  tagCatalog.forEach((group) => {
+    const button = document.createElement("button");
+    button.className = "tag-group-button";
+    button.type = "button";
+    button.textContent = group.label;
+
+    const isOpen = group.key === activeGroupKey;
+    const hasSelectedTag =
+      selectedTags.includes(group.key) ||
+      group.subTags.some((tag) => selectedTags.includes(tag.key));
+
+    button.classList.toggle("is-active", isOpen);
+    button.classList.toggle("is-selected", hasSelectedTag);
+
+    button.addEventListener("click", () => {
+      addTagToSelection(group.key);
+      activeGroupKey = activeGroupKey === group.key ? "" : group.key;
+
+      renderTagGroups();
+      renderSubTags();
+      renderSelectedTags();
+    });
+
+    tagGroupList.appendChild(button);
+  });
+}
+
+function renderSubTags() {
+  const activeGroup = tagCatalog.find((group) => group.key === activeGroupKey);
+  subtagList.innerHTML = "";
+
+  if (!activeGroup) {
+    subtagSection.hidden = true;
+    return;
+  }
+
+  subtagSection.hidden = false;
+
+  activeGroup.subTags.forEach((tag) => {
+    const button = document.createElement("button");
+    button.className = "tag-chip";
+    button.type = "button";
+    button.textContent = tag.label;
+    button.classList.toggle("is-selected", selectedTags.includes(tag.key));
+
+    button.addEventListener("click", () => toggleSelectedTag(tag.key));
+
+    subtagList.appendChild(button);
+  });
+}
+
+function toggleSelectedTag(tagKey) {
+  if (selectedTags.includes(tagKey)) {
+    selectedTags = selectedTags.filter((key) => key !== tagKey);
+  } else {
+    selectedTags = [...selectedTags, tagKey];
+  }
+
+  renderTagGroups();
+  renderSubTags();
+  renderSelectedTags();
+}
+
+function renderSelectedTags() {
+  selectedTagsContainer.innerHTML = "";
+
+  if (selectedTags.length === 0) {
+    selectedTagsContainer.innerHTML = '<span class="muted-text">Nenhuma tag selecionada.</span>';
+    return;
+  }
+
+  selectedTags.forEach((tagKey) => {
+    const button = document.createElement("button");
+    button.className = "selected-tag";
+    button.type = "button";
+    button.innerHTML = `${getTagLabel(tagKey)} <span aria-hidden="true">×</span>`;
+    button.setAttribute("aria-label", `Remover tag ${getTagLabel(tagKey)}`);
+
+    button.addEventListener("click", () => toggleSelectedTag(tagKey));
+
+    selectedTagsContainer.appendChild(button);
+  });
+}
+
+function applyFilters() {
+  const typedTag = getCurrentTypedTag();
+  const matchedTag = findTagByTerm(typedTag);
+
+  if (matchedTag) {
+    addTagToSelection(matchedTag.key);
+    clearManualSearch();
+    renderTagGroups();
+    renderSubTags();
+    renderSelectedTags();
+  }
+
+  appliedTags = [...selectedTags];
+  hasSearched = true;
+  renderContents();
+}
+
+function clearFilters() {
+  selectedTags = [];
+  appliedTags = [];
+  activeGroupKey = "";
+  hasSearched = false;
+
+  clearManualSearch();
+
+  renderTagGroups();
+  renderSubTags();
+  renderSelectedTags();
+  renderContents();
+}
+
+function renderContents() {
+  contentGrid.innerHTML = "";
+
+  if (!hasSearched) {
+    resultCount.textContent = "0 conteúdos";
+    libraryEmpty.textContent = "Selecione uma ou mais tags e clique em Filtrar para consultar a biblioteca.";
+    libraryEmpty.classList.add("is-visible");
+    return;
+  }
+
+  if (appliedTags.length === 0) {
+    resultCount.textContent = "0 conteúdos";
+    libraryEmpty.textContent = "Selecione pelo menos uma tag antes de iniciar a pesquisa.";
+    libraryEmpty.classList.add("is-visible");
+    return;
+  }
+
   const contents = getContents();
 
   const filteredContents = contents.filter((content) => {
-    const searchable = `${content.title} ${content.text} ${content.category}`.toLowerCase();
-    return searchable.includes(searchTerm);
+    const contentTags = content.tags || [];
+    return appliedTags.some((tag) => contentTags.includes(tag));
   });
 
-  categoryGrid.innerHTML = "";
-
-  categories.forEach((category) => {
-    const total = filteredContents.filter((content) => content.category === category).length;
-
-    if (searchTerm && total === 0) {
-      return;
-    }
-
-    const card = document.createElement("button");
-    card.className = "folder-card";
-    card.type = "button";
-    card.innerHTML = `
-      <span class="folder-icon" aria-hidden="true"></span>
-      <strong>${category}</strong>
-      <span>${total} conteúdo${total === 1 ? "" : "s"}</span>
-    `;
-    card.addEventListener("click", () => openCategory(category));
-    categoryGrid.appendChild(card);
-  });
-
-  libraryEmpty.classList.toggle("is-visible", categoryGrid.children.length === 0);
-}
-
-function openCategory(category) {
-  selectedCategory = category;
-  categoryTitle.textContent = category;
-  renderCategoryContents();
-  showScreen("category");
-}
-
-function renderCategoryContents() {
-  const contents = getContents().filter((content) => content.category === selectedCategory);
-  contentGrid.innerHTML = "";
-
-  contents.forEach((content) => {
+  filteredContents.forEach((content) => {
     const card = document.createElement("button");
     card.className = "content-card";
     card.type = "button";
     card.innerHTML = `
-      <span class="file-icon" aria-hidden="true"></span>
+      <span class="content-category">${getCategoryLabel(content.category)}</span>
       <strong>${content.title}</strong>
+      <p>${content.text}</p>
+      <div class="card-tags">
+        ${(content.tags || []).slice(0, 4).map((tag) => `<span>${getTagLabel(tag)}</span>`).join("")}
+      </div>
     `;
+
     card.addEventListener("click", () => openDocument(content));
     contentGrid.appendChild(card);
   });
 
-  categoryEmpty.classList.toggle("is-visible", contents.length === 0);
+  resultCount.textContent = `${filteredContents.length} conteúdo${filteredContents.length === 1 ? "" : "s"}`;
+
+  if (filteredContents.length === 0) {
+    libraryEmpty.textContent = "Nenhum conteúdo encontrado para os filtros selecionados.";
+    libraryEmpty.classList.add("is-visible");
+  } else {
+    libraryEmpty.classList.remove("is-visible");
+  }
 }
 
 function openDocument(content) {
-  documentCategory.textContent = content.category;
+  documentCategory.textContent = getCategoryLabel(content.category);
   documentTitle.textContent = content.title;
   documentText.textContent = content.text;
+  documentTags.innerHTML = (content.tags || [])
+    .map((tag) => `<span>${getTagLabel(tag)}</span>`)
+    .join("");
+
   showScreen("document");
 }
 
+function suggestCategory(normalizedText) {
+  if (normalizedText.includes("react") || normalizedText.includes("css") || normalizedText.includes("html")) {
+    return "frontend";
+  }
+
+  if (normalizedText.includes("python") || normalizedText.includes("tf idf") || normalizedText.includes("modelo")) {
+    return "data-science";
+  }
+
+  if (normalizedText.includes("oci") || normalizedText.includes("cloud") || normalizedText.includes("docker") || normalizedText.includes("bucket")) {
+    return "cloud";
+  }
+
+  if (normalizedText.includes("sql") || normalizedText.includes("banco") || normalizedText.includes("database")) {
+    return "database";
+  }
+
+  if (normalizedText.includes("seguranca") || normalizedText.includes("security") || normalizedText.includes("token") || normalizedText.includes("jwt")) {
+    return "security";
+  }
+
+  return "backend";
+}
+
+function suggestTags(title, text, informedCategory) {
+  const normalizedContent = normalizeText(`${title} ${text}`);
+  const tags = new Set();
+
+  const category = informedCategory || suggestCategory(normalizedContent);
+  tags.add(category);
+
+  getAllTagsFromCatalog().forEach((tag) => {
+    const normalizedKey = normalizeText(tag.key);
+    const normalizedLabel = normalizeText(tag.label);
+
+    if (normalizedContent.includes(normalizedKey) || normalizedContent.includes(normalizedLabel)) {
+      tags.add(tag.key);
+    }
+  });
+
+  return Array.from(tags);
+}
 
 catalogForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -267,12 +621,16 @@ catalogForm.addEventListener("submit", (event) => {
   const title = formData.get("title").trim();
   const text = formData.get("text").trim();
   const informedCategory = formData.get("category");
+  const normalizedContent = normalizeText(`${title} ${text}`);
+  const category = informedCategory || suggestCategory(normalizedContent);
 
   const newContent = {
     id: createContentId(),
     title,
     text,
-    category: informedCategory || suggestCategory(`${title} ${text}`)
+    category,
+    probability: 0.8,
+    tags: suggestTags(title, text, category)
   };
 
   const contents = getContents();
@@ -283,7 +641,38 @@ catalogForm.addEventListener("submit", (event) => {
   showScreen("success");
 });
 
-searchInput.addEventListener("input", renderLibrary);
+toggleSearchButton.addEventListener("click", () => {
+  manualSearch.hidden = !manualSearch.hidden;
+
+  if (!manualSearch.hidden) {
+    searchInput.focus();
+    renderTagSuggestions();
+  } else {
+    clearManualSearch();
+  }
+});
+
+searchInput.addEventListener("input", renderTagSuggestions);
+
+searchInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+
+    const typedTag = getCurrentTypedTag();
+    const matchedTag = findTagByTerm(typedTag);
+
+    if (matchedTag) {
+      addTagFromSuggestion(matchedTag.key);
+    }
+  }
+
+  if (event.key === "Escape") {
+    tagSuggestions.hidden = true;
+  }
+});
+
+applyFiltersButton.addEventListener("click", applyFilters);
+clearFiltersButton.addEventListener("click", clearFilters);
 
 document.querySelectorAll("[data-view]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -291,10 +680,8 @@ document.querySelectorAll("[data-view]").forEach((button) => {
   });
 });
 
-backToCategoryButton.addEventListener("click", () => {
-  showScreen("category");
+document.querySelector(".login-button").addEventListener("click", () => {
+  alert("Login e cadastro estarão disponíveis em breve.");
 });
 
-document.querySelector(".login-button").addEventListener("click", () => {
-  alert("Função de login será implementada em uma próxima etapa.");
-});
+fetchTags();
