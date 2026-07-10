@@ -30,7 +30,8 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/auth/login",
-                                "/auth/register"
+                                "/auth/register",
+                                "/tags"
                         ).permitAll()
 
                         .anyRequest().authenticated()
