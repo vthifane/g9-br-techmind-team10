@@ -1,5 +1,6 @@
 const API_BASE_URL = "http://localhost:8080";
-const storageKey = "techmind.contents.v3";
+const contentStorageKey = "techmind.contents.v4";
+const authStorageKey = "techmind.auth";
 
 const fallbackTagCatalog = [
   {
@@ -172,6 +173,7 @@ const initialContents = [
 const screens = {
   library: document.querySelector("#library-screen"),
   submit: document.querySelector("#submit-screen"),
+  auth: document.querySelector("#auth-screen"),
   success: document.querySelector("#success-screen"),
   document: document.querySelector("#document-screen")
 };
@@ -195,17 +197,33 @@ const documentTitle = document.querySelector("#document-title");
 const documentTags = document.querySelector("#document-tags");
 const documentText = document.querySelector("#document-text");
 
+const authActionButton = document.querySelector("#auth-action-button");
+const userStatus = document.querySelector("#user-status");
+const authForm = document.querySelector("#auth-form");
+const loginTab = document.querySelector("#login-tab");
+const registerTab = document.querySelector("#register-tab");
+const nameGroup = document.querySelector("#name-group");
+const authName = document.querySelector("#auth-name");
+const authEmail = document.querySelector("#auth-email");
+const authPassword = document.querySelector("#auth-password");
+const authTitle = document.querySelector("#auth-title");
+const authDescription = document.querySelector("#auth-description");
+const authSubmitButton = document.querySelector("#auth-submit-button");
+const authSecondaryAction = document.querySelector("#auth-secondary-action");
+const authFeedback = document.querySelector("#auth-feedback");
+
 let tagCatalog = [];
 let activeGroupKey = "";
 let selectedTags = [];
 let appliedTags = [];
 let hasSearched = false;
+let authMode = "login";
 
 function getContents() {
-  const saved = localStorage.getItem(storageKey);
+  const saved = localStorage.getItem(contentStorageKey);
 
   if (!saved) {
-    localStorage.setItem(storageKey, JSON.stringify(initialContents));
+    localStorage.setItem(contentStorageKey, JSON.stringify(initialContents));
     return initialContents;
   }
 
@@ -213,7 +231,47 @@ function getContents() {
 }
 
 function saveContents(contents) {
-  localStorage.setItem(storageKey, JSON.stringify(contents));
+  localStorage.setItem(contentStorageKey, JSON.stringify(contents));
+}
+
+function getSession() {
+  const saved = localStorage.getItem(authStorageKey);
+
+  if (!saved) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(saved);
+  } catch (error) {
+    localStorage.removeItem(authStorageKey);
+    return null;
+  }
+}
+
+function saveSession(session) {
+  localStorage.setItem(authStorageKey, JSON.stringify(session));
+}
+
+function clearSession() {
+  localStorage.removeItem(authStorageKey);
+}
+
+function isAuthenticated() {
+  const session = getSession();
+  return Boolean(session?.token);
+}
+
+function requireAuthentication(message) {
+  if (isAuthenticated()) {
+    return true;
+  }
+
+  setAuthMode("login");
+  showScreen("auth");
+  showAuthFeedback(message, "info");
+
+  return false;
 }
 
 function createContentId() {
@@ -383,11 +441,20 @@ async function fetchTags() {
 }
 
 function showScreen(screenName) {
+  if (screenName === "submit" && !requireAuthentication("Faça login para enviar novos conteúdos.")) {
+    return;
+  }
+
   Object.values(screens).forEach((screen) => screen.classList.remove("is-active"));
   screens[screenName].classList.add("is-active");
 
   if (screenName === "library") {
     renderContents();
+  }
+
+  if (screenName === "auth") {
+    clearAuthFeedback();
+    authEmail.focus();
   }
 }
 
@@ -479,6 +546,10 @@ function renderSelectedTags() {
 }
 
 function applyFilters() {
+  if (!requireAuthentication("Faça login para consultar os conteúdos da biblioteca.")) {
+    return;
+  }
+
   const typedTag = getCurrentTypedTag();
   const matchedTag = findTagByTerm(typedTag);
 
@@ -614,8 +685,138 @@ function suggestTags(title, text, informedCategory) {
   return Array.from(tags);
 }
 
+function setAuthMode(mode) {
+  authMode = mode;
+  clearAuthFeedback();
+  authForm.reset();
+
+  const isLogin = authMode === "login";
+
+  loginTab.classList.toggle("is-active", isLogin);
+  registerTab.classList.toggle("is-active", !isLogin);
+
+  nameGroup.hidden = isLogin;
+  authName.required = !isLogin;
+
+  authTitle.textContent = isLogin ? "Entrar na plataforma" : "Criar conta";
+  authDescription.textContent = isLogin
+    ? "Acesse sua conta para manter seu histórico de conteúdos e futuras consultas personalizadas."
+    : "Crie uma conta para registrar conteúdos, organizar conhecimento e preparar consultas personalizadas.";
+
+  authSubmitButton.textContent = isLogin ? "Entrar" : "Criar conta";
+  authSecondaryAction.textContent = isLogin ? "Ainda não tenho conta" : "Já tenho conta";
+}
+
+function showAuthFeedback(message, type = "error") {
+  authFeedback.textContent = message;
+  authFeedback.className = `auth-feedback is-${type}`;
+  authFeedback.hidden = false;
+}
+
+function clearAuthFeedback() {
+  authFeedback.textContent = "";
+  authFeedback.hidden = true;
+  authFeedback.className = "auth-feedback";
+}
+
+async function sendAuthRequest(endpoint, payload) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const responseText = await response.text();
+  let data = {};
+
+  if (responseText) {
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      data = { message: responseText };
+    }
+  }
+
+  if (!response.ok) {
+    const message = data.message || data.error || "Não foi possível concluir a operação.";
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+function extractToken(data) {
+  return data.token || data.accessToken || data.jwt || data.bearerToken || "";
+}
+
+async function handleRegister(name, email, password) {
+  await sendAuthRequest("/auth/register", {
+    name,
+    email,
+    password
+  });
+
+  setAuthMode("login");
+  authEmail.value = email;
+  showAuthFeedback("Cadastro realizado com sucesso. Informe sua senha para entrar.", "success");
+}
+
+async function handleLogin(email, password) {
+  const data = await sendAuthRequest("/auth/login", {
+    email,
+    password
+  });
+
+  const token = extractToken(data);
+
+  if (!token) {
+    throw new Error("Login realizado, mas o token não foi encontrado na resposta da API.");
+  }
+
+  saveSession({
+    token,
+    email,
+    name: data.name || email,
+    createdAt: new Date().toISOString()
+  });
+
+  renderAuthState();
+  authForm.reset();
+  showScreen("library");
+}
+
+function renderAuthState() {
+  const session = getSession();
+
+  if (!session) {
+    userStatus.hidden = true;
+    userStatus.textContent = "";
+    authActionButton.textContent = "Login";
+    authActionButton.classList.remove("is-logout");
+    return;
+  }
+
+  userStatus.hidden = false;
+  userStatus.textContent = session.name || session.email;
+  authActionButton.textContent = "Sair";
+  authActionButton.classList.add("is-logout");
+}
+
+function logout() {
+  clearSession();
+  renderAuthState();
+  clearFilters();
+  showScreen("library");
+}
+
 catalogForm.addEventListener("submit", (event) => {
   event.preventDefault();
+
+  if (!requireAuthentication("Faça login para catalogar novos conteúdos.")) {
+    return;
+  }
 
   const formData = new FormData(catalogForm);
   const title = formData.get("title").trim();
@@ -639,6 +840,50 @@ catalogForm.addEventListener("submit", (event) => {
 
   catalogForm.reset();
   showScreen("success");
+});
+
+authForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearAuthFeedback();
+
+  const name = authName.value.trim();
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
+
+  authSubmitButton.disabled = true;
+  authSubmitButton.textContent = authMode === "login" ? "Entrando..." : "Criando conta...";
+
+  try {
+    if (authMode === "login") {
+      await handleLogin(email, password);
+    } else {
+      await handleRegister(name, email, password);
+    }
+  } catch (error) {
+    showAuthFeedback(error.message);
+  } finally {
+    authSubmitButton.disabled = false;
+    authSubmitButton.textContent = authMode === "login" ? "Entrar" : "Criar conta";
+  }
+});
+
+loginTab.addEventListener("click", () => setAuthMode("login"));
+registerTab.addEventListener("click", () => setAuthMode("register"));
+
+authSecondaryAction.addEventListener("click", () => {
+  setAuthMode(authMode === "login" ? "register" : "login");
+});
+
+authActionButton.addEventListener("click", () => {
+  const session = getSession();
+
+  if (session) {
+    logout();
+    return;
+  }
+
+  setAuthMode("login");
+  showScreen("auth");
 });
 
 toggleSearchButton.addEventListener("click", () => {
@@ -680,8 +925,6 @@ document.querySelectorAll("[data-view]").forEach((button) => {
   });
 });
 
-document.querySelector(".login-button").addEventListener("click", () => {
-  alert("Login e cadastro estarão disponíveis em breve.");
-});
-
+setAuthMode("login");
+renderAuthState();
 fetchTags();

@@ -21,7 +21,8 @@
         <nav class="top-actions" aria-label="Ações principais">
             <button class="ghost-button" type="button" data-view="library">Biblioteca</button>
             <button class="ghost-button" type="button" data-view="submit">Enviar conteúdo</button>
-            <button class="login-button" type="button">Login</button>
+            <span class="user-status" id="user-status" hidden></span>
+            <button class="login-button" type="button" id="auth-action-button">Login</button>
         </nav>
     </header>
 
@@ -29,7 +30,7 @@
         <section class="library screen is-active" id="library-screen" aria-labelledby="library-title">
             <div class="library-hero">
                 <p class="eyebrow">Biblioteca inteligente</p>
-                <h1 id="library-title">Organize e acesse conhecimento técnico com precisão.</h1>
+                <h1 id="library-title">Organize e recupere conhecimento técnico com precisão.</h1>
                 <p class="hero-text">
                     Navegue por categorias, combine tags e localize rapidamente conteúdos relevantes para consulta,
                     estudo e tomada de decisão técnica.
@@ -124,6 +125,48 @@
 
                 <button class="primary-button" type="submit">Catalogar conteúdo</button>
             </form>
+        </section>
+
+        <section class="auth-page screen" id="auth-screen" aria-labelledby="auth-title">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <p class="eyebrow">Acesso</p>
+                    <h2 id="auth-title">Entrar na plataforma</h2>
+                    <p id="auth-description">
+                        Acesse sua conta para manter seu histórico de conteúdos e futuras consultas personalizadas.
+                    </p>
+                </div>
+
+                <div class="auth-tabs" aria-label="Alternar entre login e cadastro">
+                    <button class="auth-tab is-active" type="button" id="login-tab">Login</button>
+                    <button class="auth-tab" type="button" id="register-tab">Cadastro</button>
+                </div>
+
+                <form class="auth-form" id="auth-form">
+                    <div class="form-group" id="name-group" hidden>
+                        <label for="auth-name">Nome</label>
+                        <input id="auth-name" name="name" type="text" placeholder="Seu nome">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auth-email">E-mail</label>
+                        <input id="auth-email" name="email" type="email" placeholder="nome@empresa.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="auth-password">Senha</label>
+                        <input id="auth-password" name="password" type="password" placeholder="Digite sua senha" required>
+                    </div>
+
+                    <div class="auth-feedback" id="auth-feedback" hidden></div>
+
+                    <button class="primary-button" type="submit" id="auth-submit-button">Entrar</button>
+                </form>
+
+                <button class="text-button" type="button" id="auth-secondary-action">
+                    Ainda não tenho conta
+                </button>
+            </div>
         </section>
 
         <section class="success-panel screen" id="success-screen" aria-live="polite">
