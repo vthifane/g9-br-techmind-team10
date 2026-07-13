@@ -6,7 +6,7 @@ import com.g9team10.backend.dto.RegisterRequest;
 import com.g9team10.backend.exception.BusinessException;
 import com.g9team10.backend.model.User;
 import com.g9team10.backend.repository.UserRepository;
-import com.g9team10.backend.security.JwtService;
+import com.g9team10.backend.infra.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

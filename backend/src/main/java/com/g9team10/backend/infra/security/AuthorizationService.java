@@ -1,4 +1,4 @@
-package com.g9team10.backend.security;
+package com.g9team10.backend.infra.security;
 
 import com.g9team10.backend.model.User;
 import com.g9team10.backend.repository.UserRepository;

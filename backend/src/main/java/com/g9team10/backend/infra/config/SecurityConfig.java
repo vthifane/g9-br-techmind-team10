@@ -1,6 +1,6 @@
-package com.g9team10.backend.config;
+package com.g9team10.backend.infra.config;
 
-import com.g9team10.backend.security.JwtFilter;
+import com.g9team10.backend.infra.security.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
