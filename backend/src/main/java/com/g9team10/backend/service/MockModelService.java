@@ -17,48 +17,48 @@ public class MockModelService implements ModelPredictionService {
 
         if (containsAny(combinedText, "react", "html", "css", "javascript", "frontend")) {
             return new ModelPredictResponseDTO(
-                    "Frontend",
+                    "frontend",
                     0.91,
-                    List.of("HTML", "CSS", "JavaScript")
+                    List.of("frontend", "html", "css", "javascript")
             );
         }
 
         if (containsAny(combinedText, "python", "pandas", "scikit", "tf-idf", "machine learning", "modelo")) {
             return new ModelPredictResponseDTO(
-                    "Data Science",
+                    "data-science",
                     0.88,
-                    List.of("Python", "TF-IDF", "Machine Learning")
+                    List.of("data-science", "python", "tf-idf", "machine-learning")
             );
         }
 
         if (containsAny(combinedText, "oci", "cloud", "docker", "compute", "bucket", "object storage")) {
             return new ModelPredictResponseDTO(
-                    "Cloud",
+                    "cloud",
                     0.86,
-                    List.of("OCI", "Docker", "Object Storage")
+                    List.of("cloud", "oci", "docker", "object-storage")
             );
         }
 
-        if (containsAny(combinedText, "sql", "database", "banco", "jpa", "h2")) {
+        if (containsAny(combinedText, "sql", "database", "banco", "jpa", "h2", "repository")) {
             return new ModelPredictResponseDTO(
-                    "Database",
+                    "database",
                     0.84,
-                    List.of("SQL", "Database", "JPA")
+                    List.of("database", "sql", "jpa", "repository")
             );
         }
 
         if (containsAny(combinedText, "security", "token", "jwt", "senha", "autenticação", "login")) {
             return new ModelPredictResponseDTO(
-                    "Security",
+                    "security",
                     0.82,
-                    List.of("Authentication", "Token", "Security")
+                    List.of("security", "authentication", "jwt", "token", "spring-security")
             );
         }
 
         return new ModelPredictResponseDTO(
-                "Backend",
+                "backend",
                 0.89,
-                List.of("Java", "Spring Boot", "API REST")
+                List.of("backend", "java", "spring-boot", "api-rest")
         );
     }
 

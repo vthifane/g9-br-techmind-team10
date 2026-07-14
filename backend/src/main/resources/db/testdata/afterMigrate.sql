@@ -1,126 +1,161 @@
-set foreign_key_checks = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
-delete from tag;
-delete from content;
-delete from content_tag;
+DELETE FROM content_tag;
+DELETE FROM content;
+DELETE FROM tag;
 
-set foreign_key_checks = 1;
+SET FOREIGN_KEY_CHECKS = 1;
 
-alter table tag auto_increment = 1;
-alter table content auto_increment = 1;
-alter table content_tag auto_increment = 1;
-
+ALTER TABLE tag AUTO_INCREMENT = 1;
+ALTER TABLE content AUTO_INCREMENT = 1;
 
 INSERT INTO tag (id, name)
-VALUES (1, 'java'),
-       (2, 'spring boot'),
-       (3, 'api rest'),
-       (4, 'react'),
-       (5, 'javascript'),
-       (6, 'css'),
-       (7, 'python'),
-       (8, 'pandas'),
-       (9, 'machine learning'),
-       (10, 'docker'),
-       (11, 'ci/cd'),
-       (12, 'kubernetes'),
-       (13, 'android'),
-       (14, 'kotlin'),
-       (15, 'flutter'),
-       (16, 'node.js'),
-       (17, 'typescript'),
-       (18, 'sql'),
-       (19, 'testes automatizados'),
-       (20, 'microsserviços');
+VALUES
+       (1, 'backend'),
+       (2, 'java'),
+       (3, 'spring-boot'),
+       (4, 'api-rest'),
+       (5, 'dto'),
+       (6, 'validation'),
+
+       (7, 'frontend'),
+       (8, 'html'),
+       (9, 'css'),
+       (10, 'javascript'),
+       (11, 'react'),
+       (12, 'responsive-design'),
+
+       (13, 'data-science'),
+       (14, 'python'),
+       (15, 'pandas'),
+       (16, 'scikit-learn'),
+       (17, 'tf-idf'),
+       (18, 'machine-learning'),
+
+       (19, 'cloud'),
+       (20, 'oci'),
+       (21, 'compute'),
+       (22, 'docker'),
+       (23, 'object-storage'),
+       (24, 'terraform'),
+
+       (25, 'database'),
+       (26, 'sql'),
+       (27, 'nosql'),
+       (28, 'h2'),
+       (29, 'jpa'),
+       (30, 'repository'),
+
+       (31, 'security'),
+       (32, 'authentication'),
+       (33, 'authorization'),
+       (34, 'jwt'),
+       (35, 'token'),
+       (36, 'spring-security');
 
 INSERT INTO content (id, title, text, category, probability, date_processing)
-VALUES (1, 'Introdução ao Spring Boot',
-        'Neste conteúdo são apresentados os conceitos básicos para criação de APIs REST utilizando Java e Spring Boot.',
-        'Backend', 0.890, '2026-06-01 09:15:00'),
-       (2, 'Injeção de dependência no Spring',
-        'Como funciona o container de beans do Spring Framework e por que a injeção de dependência facilita testes e manutenção.',
-        'Backend', 0.860, '2026-06-02 10:30:00'),
-       (3, 'Construindo microsserviços com Spring Boot',
-        'Boas práticas para dividir uma aplicação monolítica em microsserviços, comunicação via API REST e versionamento de contratos.',
-        'Backend', 0.780, '2026-06-05 14:00:00'),
-       (4, 'Testes automatizados em APIs Java',
-        'Estratégias de teste unitário e de integração para endpoints REST, usando JUnit e Mockito em projetos Spring Boot.',
-        'Backend', 0.910, '2026-06-08 11:45:00'),
-       (5, 'Hooks no React',
-        'useState e useEffect são hooks fundamentais para gerenciar estado e efeitos colaterais em componentes funcionais React.',
-        'Frontend', 0.870, '2026-06-01 16:20:00'),
-       (6, 'Tipando componentes React com TypeScript',
-        'Como usar interfaces e tipos genéricos do TypeScript para tornar props e estado de componentes React mais seguros.',
-        'Frontend', 0.820, '2026-06-03 09:00:00'),
-       (7, 'Estilização com CSS Modules',
-        'Comparação entre CSS Modules, Styled Components e Tailwind para organizar estilos em aplicações React de médio porte.',
-        'Frontend', 0.750, '2026-06-06 13:10:00'),
-       (8, 'Análise exploratória de dados com Pandas',
-        'Técnicas de limpeza, tratamento de valores nulos e visualização inicial de dados tabulares utilizando a biblioteca Pandas em Python.',
-        'Dados', 0.930, '2026-06-02 08:40:00'),
-       (9, 'Classificação de texto com Scikit-Learn',
-        'Construção de um pipeline de machine learning com TF-IDF e Regressão Logística para classificar documentos por categoria.',
-        'Dados', 0.880, '2026-06-04 15:25:00'),
-       (10, 'Consultas SQL para análise de dados',
-        'Uso de agregações, joins e subqueries em SQL para extrair métricas de negócio a partir de bancos relacionais.',
-        'Dados', 0.700, '2026-06-07 10:00:00'),
-       (11, 'Pipelines de CI/CD com GitHub Actions',
-        'Automação de build, testes e deploy utilizando GitHub Actions, com exemplos de workflow para aplicações Java e Python.',
-        'DevOps', 0.840, '2026-06-03 17:00:00'),
-       (12, 'Orquestração de containers com Kubernetes',
-        'Conceitos de pods, services e deployments no Kubernetes, e como escalar aplicações containerizadas em produção.',
-        'DevOps', 0.790, '2026-06-05 11:20:00'),
-       (13, 'Empacotando aplicações com Docker',
-        'Criação de Dockerfiles otimizados e uso de Docker Compose para orquestrar múltiplos serviços em ambiente de desenvolvimento.',
-        'DevOps', 0.900, '2026-06-09 09:50:00'),
-       (14, 'Desenvolvimento Android nativo com Kotlin',
-        'Estrutura de um projeto Android moderno utilizando Kotlin, ViewModel e Jetpack Compose para interfaces declarativas.',
-        'Mobile', 0.860, '2026-06-04 14:30:00'),
-       (15, 'Aplicativos multiplataforma com Flutter',
-        'Como o Flutter permite compartilhar um único código-fonte entre Android e iOS, com widgets e gerenciamento de estado.',
-        'Mobile', 0.810, '2026-06-06 16:45:00'),
-       (16, 'Gerenciamento de estado em apps móveis',
-        'Comparação entre Provider, Bloc e Riverpod para gerenciar estado em aplicações Flutter de médio e grande porte.',
-        'Mobile', 0.730, '2026-06-08 12:15:00'),
-       (17, 'Integração entre Node.js e bancos SQL',
-        'Uso de ORMs em Node.js para conectar aplicações JavaScript a bancos de dados relacionais, com exemplos de migrations.',
-        'Backend', 0.520, '2026-06-10 10:00:00');
+VALUES
+       (1, 'Introdução ao Spring Boot',
+        'Conceitos básicos para criação de APIs REST com Java e Spring Boot.',
+        'backend', 0.890, '2026-06-01 09:15:00'),
 
+       (2, 'Validação de dados com Bean Validation',
+        'Uso de anotações como @NotBlank e @Valid para validar entradas da API.',
+        'backend', 0.840, '2026-06-02 10:30:00'),
+
+       (3, 'Componentização com React',
+        'Uso de componentes, estado e eventos para construir interfaces reutilizáveis.',
+        'frontend', 0.910, '2026-06-03 09:00:00'),
+
+       (4, 'Design responsivo com CSS Grid',
+        'Organização de telas adaptáveis usando CSS, grid, media queries e espaçamentos fluidos.',
+        'frontend', 0.870, '2026-06-04 13:10:00'),
+
+       (5, 'TF-IDF na classificação de textos',
+        'Representação numérica de textos para modelos de machine learning com Python.',
+        'data-science', 0.880, '2026-06-05 15:25:00'),
+
+       (6, 'Classificação com Scikit-Learn',
+        'Treinamento de modelos com pandas, scikit-learn e regressão logística.',
+        'data-science', 0.860, '2026-06-06 08:40:00'),
+
+       (7, 'Object Storage na OCI',
+        'Armazenamento de arquivos, modelos e resultados JSON em buckets da OCI.',
+        'cloud', 0.860, '2026-06-07 10:00:00'),
+
+       (8, 'Deploy com Docker em OCI Compute',
+        'Uso de uma máquina virtual para hospedar frontend, backend e serviços auxiliares com Docker.',
+        'cloud', 0.900, '2026-06-08 09:50:00'),
+
+       (9, 'Consultas SQL com filtros',
+        'Uso de SELECT, WHERE e ORDER BY para recuperar dados específicos.',
+        'database', 0.840, '2026-06-09 10:00:00'),
+
+       (10, 'Persistência com JPA',
+        'Mapeamento de entidades Java para tabelas e uso de repositories.',
+        'database', 0.830, '2026-06-10 10:00:00'),
+
+       (11, 'Autenticação com JWT',
+        'Uso de token JWT para autenticar usuários em uma API Spring Security.',
+        'security', 0.820, '2026-06-11 11:00:00'),
+
+       (12, 'Autorização em APIs',
+        'Controle de acesso a endpoints protegidos com regras de autorização.',
+        'security', 0.810, '2026-06-12 12:00:00');
 
 INSERT INTO content_tag (content_id, tag_id)
-VALUES (1, 1),
+VALUES
+       (1, 1),
        (1, 2),
        (1, 3),
+       (1, 4),
+
        (2, 1),
        (2, 2),
-       (3, 1),
-       (3, 2),
-       (3, 3),
-       (3, 20),
-       (4, 1),
-       (4, 3),
-       (4, 19),
-       (5, 4),
-       (5, 5),
-       (6, 4),
-       (6, 17),
-       (7, 4),
-       (7, 6),
-       (8, 7),
-       (8, 8),
-       (9, 7),
-       (9, 9),
-       (10, 18),
-       (11, 11),
-       (11, 10),
-       (12, 12),
-       (12, 10),
-       (13, 10),
-       (13, 11),
-       (14, 13),
-       (14, 14),
-       (15, 15),
-       (15, 13),
-       (16, 15),
-       (17, 16),
-       (17, 18);
+       (2, 5),
+       (2, 6),
+
+       (3, 7),
+       (3, 10),
+       (3, 11),
+
+       (4, 7),
+       (4, 9),
+       (4, 12),
+
+       (5, 13),
+       (5, 14),
+       (5, 17),
+       (5, 18),
+
+       (6, 13),
+       (6, 14),
+       (6, 15),
+       (6, 16),
+
+       (7, 19),
+       (7, 20),
+       (7, 23),
+
+       (8, 19),
+       (8, 20),
+       (8, 21),
+       (8, 22),
+
+       (9, 25),
+       (9, 26),
+
+       (10, 25),
+       (10, 2),
+       (10, 29),
+       (10, 30),
+
+       (11, 31),
+       (11, 32),
+       (11, 34),
+       (11, 35),
+       (11, 36),
+
+       (12, 31),
+       (12, 33),
+       (12, 36);

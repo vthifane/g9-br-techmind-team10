@@ -11,6 +11,7 @@ import com.g9team10.backend.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -27,9 +28,10 @@ public class ContentService {
 
         Content content = new Content(request, response);
         List<String> tags = response.tags();
+
         if (tags != null) {
             for (String grossValue : tags) {
-                String normalizedValue = grossValue.trim().toLowerCase();
+                String normalizedValue = normalizeTagKey(grossValue);
 
                 Tag tag = tagRepository.findByName(normalizedValue)
                         .orElseGet(() -> tagRepository.save(new Tag(normalizedValue)));
@@ -40,8 +42,19 @@ public class ContentService {
 
         contentRepository.save(content);
 
-        return new ContentResponseDTO(response.category(),
+        return new ContentResponseDTO(
+                response.category(),
                 response.probability(),
-                response.tags());
+                response.tags()
+        );
+    }
+
+    private String normalizeTagKey(String value) {
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase()
+                .trim()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-|-$", "");
     }
 }

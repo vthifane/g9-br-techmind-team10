@@ -7,6 +7,7 @@ import com.g9team10.backend.repository.ContentSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -17,20 +18,31 @@ public class ContentSearchService {
 
     public List<ContentSearchResponseDTO> searchByTags(List<String> tags) {
         List<String> normalized = tags.stream()
-                .map(t -> t.trim().toLowerCase())
+                .map(this::normalizeTagKey)
+                .filter(tag -> !tag.isBlank())
                 .distinct()
                 .toList();
 
-        List<Content> resultados = contentSearchRepository.findByAllTagNames(normalized, normalized.size());
+        List<Content> results = contentSearchRepository.findByAllTagNames(normalized, normalized.size());
 
-        return resultados.stream()
-                .map(c -> new ContentSearchResponseDTO(
-                        c.getId(),
-                        c.getTitle(),
-                        c.getText(),
-                        c.getCategory(),
-                        c.getProbability(),
-                        c.getTags().stream().map(Tag::getName).toList()))
+        return results.stream()
+                .map(content -> new ContentSearchResponseDTO(
+                        content.getId(),
+                        content.getTitle(),
+                        content.getText(),
+                        content.getCategory(),
+                        content.getProbability(),
+                        content.getTags().stream().map(Tag::getName).toList()
+                ))
                 .toList();
+    }
+
+    private String normalizeTagKey(String value) {
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase()
+                .trim()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-|-$", "");
     }
 }
