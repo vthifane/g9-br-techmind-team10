@@ -112,18 +112,9 @@
                     placeholder="Cole aqui anotações, resumo de artigo, trecho de documentação ou conteúdo de estudo."
                     required></textarea>
 
-                <label for="content-category">Categoria sugerida</label>
-                <select id="content-category" name="category">
-                    <option value="">Identificar automaticamente</option>
-                    <option value="backend">Backend</option>
-                    <option value="frontend">Frontend</option>
-                    <option value="data-science">Data Science</option>
-                    <option value="cloud">Cloud</option>
-                    <option value="database">Database</option>
-                    <option value="security">Security</option>
-                </select>
+                <div class="form-feedback" id="content-feedback" hidden></div>
 
-                <button class="primary-button" type="submit">Catalogar conteúdo</button>
+                <button class="primary-button" type="submit" id="catalog-submit-button">Catalogar conteúdo</button>
             </form>
         </section>
 
@@ -171,8 +162,9 @@
 
         <section class="success-panel screen" id="success-screen" aria-live="polite">
             <div class="status-symbol">OK</div>
-            <h2>Texto enviado com sucesso.</h2>
-            <p>O conteúdo foi catalogado e já está disponível para consulta na biblioteca.</p>
+            <h2 id="success-title">Texto enviado com sucesso.</h2>
+            <p id="success-message">O conteúdo foi catalogado e já está disponível para consulta na biblioteca.</p>
+            <div class="success-tags" id="success-tags"></div>
             <button class="primary-button" type="button" data-view="library">Ir para biblioteca</button>
         </section>
 

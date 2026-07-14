@@ -301,7 +301,8 @@ textarea:focus {
 .selected-tags,
 .card-tags,
 .document-tags,
-.tag-suggestions {
+.tag-suggestions,
+.success-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
@@ -313,6 +314,7 @@ textarea:focus {
 .suggestion-chip,
 .card-tags span,
 .document-tags span,
+.success-tags span,
 .content-category {
   border-radius: 999px;
   font-size: 0.86rem;
@@ -427,7 +429,8 @@ textarea:focus {
 }
 
 .card-tags span,
-.document-tags span {
+.document-tags span,
+.success-tags span {
   padding: 0.25rem 0.55rem;
   color: #40504c;
   background: #f1f6f4;
@@ -505,24 +508,28 @@ textarea:focus {
   gap: 0.45rem;
 }
 
-.auth-feedback {
+.auth-feedback,
+.form-feedback {
   padding: 0.75rem 0.85rem;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 700;
 }
 
-.auth-feedback.is-error {
+.auth-feedback.is-error,
+.form-feedback.is-error {
   color: var(--danger);
   background: var(--danger-bg);
 }
 
-.auth-feedback.is-success {
+.auth-feedback.is-success,
+.form-feedback.is-success {
   color: var(--success);
   background: var(--success-bg);
 }
 
-.auth-feedback.is-info {
+.auth-feedback.is-info,
+.form-feedback.is-info {
   color: var(--primary-dark);
   background: var(--surface-strong);
 }
@@ -549,6 +556,11 @@ textarea:focus {
 
 .success-panel p {
   color: var(--muted);
+}
+
+.success-tags {
+  justify-content: center;
+  margin: 1rem 0;
 }
 
 .status-symbol {

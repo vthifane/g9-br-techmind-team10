@@ -1,174 +1,5 @@
 const API_BASE_URL = "http://localhost:8080";
-const contentStorageKey = "techmind.contents.v4";
 const authStorageKey = "techmind.auth";
-
-const fallbackTagCatalog = [
-  {
-    key: "backend",
-    label: "Backend",
-    subTags: [
-      { key: "java", label: "Java" },
-      { key: "spring-boot", label: "Spring Boot" },
-      { key: "api-rest", label: "API REST" },
-      { key: "dto", label: "DTO" },
-      { key: "validation", label: "Validation" }
-    ]
-  },
-  {
-    key: "frontend",
-    label: "Frontend",
-    subTags: [
-      { key: "html", label: "HTML" },
-      { key: "css", label: "CSS" },
-      { key: "javascript", label: "JavaScript" },
-      { key: "react", label: "React" },
-      { key: "responsive-design", label: "Responsive Design" }
-    ]
-  },
-  {
-    key: "data-science",
-    label: "Data Science",
-    subTags: [
-      { key: "python", label: "Python" },
-      { key: "pandas", label: "Pandas" },
-      { key: "scikit-learn", label: "Scikit-Learn" },
-      { key: "tf-idf", label: "TF-IDF" },
-      { key: "machine-learning", label: "Machine Learning" }
-    ]
-  },
-  {
-    key: "cloud",
-    label: "Cloud",
-    subTags: [
-      { key: "oci", label: "OCI" },
-      { key: "compute", label: "Compute" },
-      { key: "docker", label: "Docker" },
-      { key: "object-storage", label: "Object Storage" },
-      { key: "terraform", label: "Terraform" }
-    ]
-  },
-  {
-    key: "database",
-    label: "Database",
-    subTags: [
-      { key: "sql", label: "SQL" },
-      { key: "nosql", label: "NoSQL" },
-      { key: "h2", label: "H2" },
-      { key: "jpa", label: "JPA" },
-      { key: "repository", label: "Repository" }
-    ]
-  },
-  {
-    key: "security",
-    label: "Security",
-    subTags: [
-      { key: "authentication", label: "Authentication" },
-      { key: "authorization", label: "Authorization" },
-      { key: "jwt", label: "JWT" },
-      { key: "token", label: "Token" },
-      { key: "spring-security", label: "Spring Security" }
-    ]
-  }
-];
-
-const initialContents = [
-  {
-    id: "CNT-001",
-    title: "Introdução ao Spring Boot",
-    text: "Conceitos básicos para criação de APIs REST com Java e Spring Boot.",
-    category: "backend",
-    probability: 0.89,
-    tags: ["backend", "java", "spring-boot", "api-rest"]
-  },
-  {
-    id: "CNT-002",
-    title: "Validação de dados com Bean Validation",
-    text: "Uso de anotações como @NotBlank e @Valid para validar entradas da API.",
-    category: "backend",
-    probability: 0.84,
-    tags: ["backend", "java", "validation", "dto"]
-  },
-  {
-    id: "CNT-003",
-    title: "Componentização com React",
-    text: "Uso de componentes, estado e eventos para construir interfaces reutilizáveis.",
-    category: "frontend",
-    probability: 0.91,
-    tags: ["frontend", "react", "javascript"]
-  },
-  {
-    id: "CNT-004",
-    title: "Design responsivo com CSS Grid",
-    text: "Organização de telas adaptáveis usando CSS, grid, media queries e espaçamentos fluidos.",
-    category: "frontend",
-    probability: 0.87,
-    tags: ["frontend", "css", "responsive-design"]
-  },
-  {
-    id: "CNT-005",
-    title: "TF-IDF na classificação de textos",
-    text: "Representação numérica de textos para modelos de machine learning com Python.",
-    category: "data-science",
-    probability: 0.88,
-    tags: ["data-science", "python", "tf-idf", "machine-learning"]
-  },
-  {
-    id: "CNT-006",
-    title: "Classificação com Scikit-Learn",
-    text: "Treinamento de modelos com pandas, scikit-learn e regressão logística.",
-    category: "data-science",
-    probability: 0.86,
-    tags: ["data-science", "python", "pandas", "scikit-learn"]
-  },
-  {
-    id: "CNT-007",
-    title: "Object Storage na OCI",
-    text: "Armazenamento de arquivos, modelos e resultados JSON em buckets da OCI.",
-    category: "cloud",
-    probability: 0.86,
-    tags: ["cloud", "oci", "object-storage"]
-  },
-  {
-    id: "CNT-008",
-    title: "Deploy com Docker em OCI Compute",
-    text: "Uso de uma máquina virtual para hospedar frontend, backend e serviços auxiliares com Docker.",
-    category: "cloud",
-    probability: 0.9,
-    tags: ["cloud", "oci", "compute", "docker"]
-  },
-  {
-    id: "CNT-009",
-    title: "Consultas SQL com filtros",
-    text: "Uso de SELECT, WHERE e ORDER BY para recuperar dados específicos.",
-    category: "database",
-    probability: 0.84,
-    tags: ["database", "sql"]
-  },
-  {
-    id: "CNT-010",
-    title: "Persistência com JPA",
-    text: "Mapeamento de entidades Java para tabelas e uso de repositories.",
-    category: "database",
-    probability: 0.83,
-    tags: ["database", "jpa", "repository", "java"]
-  },
-  {
-    id: "CNT-011",
-    title: "Autenticação com JWT",
-    text: "Uso de token JWT para autenticar usuários em uma API Spring Security.",
-    category: "security",
-    probability: 0.82,
-    tags: ["security", "authentication", "jwt", "token", "spring-security"]
-  },
-  {
-    id: "CNT-012",
-    title: "Autorização em APIs",
-    text: "Controle de acesso a endpoints protegidos com regras de autorização.",
-    category: "security",
-    probability: 0.81,
-    tags: ["security", "authorization", "spring-security"]
-  }
-];
 
 const screens = {
   library: document.querySelector("#library-screen"),
@@ -179,6 +10,9 @@ const screens = {
 };
 
 const catalogForm = document.querySelector("#catalog-form");
+const catalogSubmitButton = document.querySelector("#catalog-submit-button");
+const contentFeedback = document.querySelector("#content-feedback");
+
 const searchInput = document.querySelector("#library-search");
 const tagSuggestions = document.querySelector("#tag-suggestions");
 const toggleSearchButton = document.querySelector("#toggle-search");
@@ -192,6 +26,7 @@ const clearFiltersButton = document.querySelector("#clear-filters");
 const contentGrid = document.querySelector("#content-grid");
 const libraryEmpty = document.querySelector("#library-empty");
 const resultCount = document.querySelector("#result-count");
+
 const documentCategory = document.querySelector("#document-category");
 const documentTitle = document.querySelector("#document-title");
 const documentTags = document.querySelector("#document-tags");
@@ -212,27 +47,19 @@ const authSubmitButton = document.querySelector("#auth-submit-button");
 const authSecondaryAction = document.querySelector("#auth-secondary-action");
 const authFeedback = document.querySelector("#auth-feedback");
 
+const successTitle = document.querySelector("#success-title");
+const successMessage = document.querySelector("#success-message");
+const successTags = document.querySelector("#success-tags");
+
 let tagCatalog = [];
 let activeGroupKey = "";
 let selectedTags = [];
 let appliedTags = [];
+let loadedContents = [];
 let hasSearched = false;
+let isLoadingContents = false;
+let libraryErrorMessage = "";
 let authMode = "login";
-
-function getContents() {
-  const saved = localStorage.getItem(contentStorageKey);
-
-  if (!saved) {
-    localStorage.setItem(contentStorageKey, JSON.stringify(initialContents));
-    return initialContents;
-  }
-
-  return JSON.parse(saved);
-}
-
-function saveContents(contents) {
-  localStorage.setItem(contentStorageKey, JSON.stringify(contents));
-}
 
 function getSession() {
   const saved = localStorage.getItem(authStorageKey);
@@ -274,12 +101,13 @@ function requireAuthentication(message) {
   return false;
 }
 
-function createContentId() {
-  return `CNT-${Date.now().toString().slice(-8)}`;
+function getAuthToken() {
+  const session = getSession();
+  return session?.token || "";
 }
 
 function normalizeText(value) {
-  return String(value)
+  return String(value || "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -290,7 +118,7 @@ function normalizeText(value) {
 function getAllTagsFromCatalog() {
   return tagCatalog.flatMap((group) => [
     { key: group.key, label: group.label, groupKey: group.key },
-    ...group.subTags.map((tag) => ({
+    ...(group.subTags || []).map((tag) => ({
       ...tag,
       groupKey: group.key
     }))
@@ -382,7 +210,7 @@ function renderTagSuggestions() {
   const typedTag = getCurrentTypedTag();
   tagSuggestions.innerHTML = "";
 
-  if (!typedTag) {
+  if (!typedTag || tagCatalog.length === 0) {
     tagSuggestions.hidden = true;
     return;
   }
@@ -419,18 +247,63 @@ function renderTagSuggestions() {
   tagSuggestions.hidden = false;
 }
 
-async function fetchTags() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/tags`);
+async function apiRequest(endpoint, options = {}) {
+  const headers = {
+    ...(options.headers || {})
+  };
 
-    if (!response.ok) {
-      throw new Error("Unable to load tag catalog.");
+  if (options.body) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (options.auth) {
+    const token = getAuthToken();
+
+    if (!token) {
+      throw new Error("Sessão não encontrada. Faça login novamente.");
     }
 
-    tagCatalog = await response.json();
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: options.method || "GET",
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+
+  const responseText = await response.text();
+  let data = null;
+
+  if (responseText) {
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      data = { message: responseText };
+    }
+  }
+
+  if (!response.ok) {
+    const message =
+      data?.message ||
+      data?.detail ||
+      data?.title ||
+      data?.error ||
+      "Não foi possível concluir a operação.";
+
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+async function fetchTags() {
+  try {
+    tagCatalog = await apiRequest("/tags");
+    libraryErrorMessage = "";
   } catch (error) {
-    tagCatalog = fallbackTagCatalog;
-    console.warn("Tag catalog API unavailable. Local catalog was loaded.", error);
+    tagCatalog = [];
+    libraryErrorMessage = "Não foi possível carregar o catálogo de tags da API.";
   }
 
   activeGroupKey = "";
@@ -438,6 +311,18 @@ async function fetchTags() {
   renderSubTags();
   renderSelectedTags();
   renderContents();
+}
+
+async function fetchContentsByTags(tags) {
+  const params = new URLSearchParams();
+
+  tags.forEach((tag) => {
+    params.append("tags", tag);
+  });
+
+  return apiRequest(`/content/search?${params.toString()}`, {
+    auth: true
+  });
 }
 
 function showScreen(screenName) {
@@ -456,10 +341,19 @@ function showScreen(screenName) {
     clearAuthFeedback();
     authEmail.focus();
   }
+
+  if (screenName === "submit") {
+    clearContentFeedback();
+  }
 }
 
 function renderTagGroups() {
   tagGroupList.innerHTML = "";
+
+  if (tagCatalog.length === 0) {
+    tagGroupList.innerHTML = '<span class="muted-text">Catálogo de tags indisponível.</span>';
+    return;
+  }
 
   tagCatalog.forEach((group) => {
     const button = document.createElement("button");
@@ -470,7 +364,7 @@ function renderTagGroups() {
     const isOpen = group.key === activeGroupKey;
     const hasSelectedTag =
       selectedTags.includes(group.key) ||
-      group.subTags.some((tag) => selectedTags.includes(tag.key));
+      (group.subTags || []).some((tag) => selectedTags.includes(tag.key));
 
     button.classList.toggle("is-active", isOpen);
     button.classList.toggle("is-selected", hasSelectedTag);
@@ -499,7 +393,7 @@ function renderSubTags() {
 
   subtagSection.hidden = false;
 
-  activeGroup.subTags.forEach((tag) => {
+  (activeGroup.subTags || []).forEach((tag) => {
     const button = document.createElement("button");
     button.className = "tag-chip";
     button.type = "button";
@@ -545,7 +439,7 @@ function renderSelectedTags() {
   });
 }
 
-function applyFilters() {
+async function applyFilters() {
   if (!requireAuthentication("Faça login para consultar os conteúdos da biblioteca.")) {
     return;
   }
@@ -563,7 +457,27 @@ function applyFilters() {
 
   appliedTags = [...selectedTags];
   hasSearched = true;
+  loadedContents = [];
+  libraryErrorMessage = "";
+
+  if (appliedTags.length === 0) {
+    renderContents();
+    return;
+  }
+
+  isLoadingContents = true;
   renderContents();
+
+  try {
+    const data = await fetchContentsByTags(appliedTags);
+    loadedContents = Array.isArray(data) ? data : [];
+  } catch (error) {
+    loadedContents = [];
+    libraryErrorMessage = error.message || "Não foi possível consultar os conteúdos.";
+  } finally {
+    isLoadingContents = false;
+    renderContents();
+  }
 }
 
 function clearFilters() {
@@ -571,6 +485,8 @@ function clearFilters() {
   appliedTags = [];
   activeGroupKey = "";
   hasSearched = false;
+  loadedContents = [];
+  libraryErrorMessage = "";
 
   clearManualSearch();
 
@@ -582,6 +498,14 @@ function clearFilters() {
 
 function renderContents() {
   contentGrid.innerHTML = "";
+  applyFiltersButton.disabled = isLoadingContents;
+
+  if (libraryErrorMessage) {
+    resultCount.textContent = "0 conteúdos";
+    libraryEmpty.textContent = libraryErrorMessage;
+    libraryEmpty.classList.add("is-visible");
+    return;
+  }
 
   if (!hasSearched) {
     resultCount.textContent = "0 conteúdos";
@@ -597,14 +521,14 @@ function renderContents() {
     return;
   }
 
-  const contents = getContents();
+  if (isLoadingContents) {
+    resultCount.textContent = "Buscando...";
+    libraryEmpty.textContent = "Consultando conteúdos na API.";
+    libraryEmpty.classList.add("is-visible");
+    return;
+  }
 
-  const filteredContents = contents.filter((content) => {
-    const contentTags = content.tags || [];
-    return appliedTags.some((tag) => contentTags.includes(tag));
-  });
-
-  filteredContents.forEach((content) => {
+  loadedContents.forEach((content) => {
     const card = document.createElement("button");
     card.className = "content-card";
     card.type = "button";
@@ -621,9 +545,9 @@ function renderContents() {
     contentGrid.appendChild(card);
   });
 
-  resultCount.textContent = `${filteredContents.length} conteúdo${filteredContents.length === 1 ? "" : "s"}`;
+  resultCount.textContent = `${loadedContents.length} conteúdo${loadedContents.length === 1 ? "" : "s"}`;
 
-  if (filteredContents.length === 0) {
+  if (loadedContents.length === 0) {
     libraryEmpty.textContent = "Nenhum conteúdo encontrado para os filtros selecionados.";
     libraryEmpty.classList.add("is-visible");
   } else {
@@ -640,49 +564,6 @@ function openDocument(content) {
     .join("");
 
   showScreen("document");
-}
-
-function suggestCategory(normalizedText) {
-  if (normalizedText.includes("react") || normalizedText.includes("css") || normalizedText.includes("html")) {
-    return "frontend";
-  }
-
-  if (normalizedText.includes("python") || normalizedText.includes("tf idf") || normalizedText.includes("modelo")) {
-    return "data-science";
-  }
-
-  if (normalizedText.includes("oci") || normalizedText.includes("cloud") || normalizedText.includes("docker") || normalizedText.includes("bucket")) {
-    return "cloud";
-  }
-
-  if (normalizedText.includes("sql") || normalizedText.includes("banco") || normalizedText.includes("database")) {
-    return "database";
-  }
-
-  if (normalizedText.includes("seguranca") || normalizedText.includes("security") || normalizedText.includes("token") || normalizedText.includes("jwt")) {
-    return "security";
-  }
-
-  return "backend";
-}
-
-function suggestTags(title, text, informedCategory) {
-  const normalizedContent = normalizeText(`${title} ${text}`);
-  const tags = new Set();
-
-  const category = informedCategory || suggestCategory(normalizedContent);
-  tags.add(category);
-
-  getAllTagsFromCatalog().forEach((tag) => {
-    const normalizedKey = normalizeText(tag.key);
-    const normalizedLabel = normalizeText(tag.label);
-
-    if (normalizedContent.includes(normalizedKey) || normalizedContent.includes(normalizedLabel)) {
-      tags.add(tag.key);
-    }
-  });
-
-  return Array.from(tags);
 }
 
 function setAuthMode(mode) {
@@ -719,32 +600,16 @@ function clearAuthFeedback() {
   authFeedback.className = "auth-feedback";
 }
 
-async function sendAuthRequest(endpoint, payload) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+function showContentFeedback(message, type = "error") {
+  contentFeedback.textContent = message;
+  contentFeedback.className = `form-feedback is-${type}`;
+  contentFeedback.hidden = false;
+}
 
-  const responseText = await response.text();
-  let data = {};
-
-  if (responseText) {
-    try {
-      data = JSON.parse(responseText);
-    } catch (error) {
-      data = { message: responseText };
-    }
-  }
-
-  if (!response.ok) {
-    const message = data.message || data.error || "Não foi possível concluir a operação.";
-    throw new Error(message);
-  }
-
-  return data;
+function clearContentFeedback() {
+  contentFeedback.textContent = "";
+  contentFeedback.hidden = true;
+  contentFeedback.className = "form-feedback";
 }
 
 function extractToken(data) {
@@ -752,10 +617,13 @@ function extractToken(data) {
 }
 
 async function handleRegister(name, email, password) {
-  await sendAuthRequest("/auth/register", {
-    name,
-    email,
-    password
+  await apiRequest("/auth/register", {
+    method: "POST",
+    body: {
+      name,
+      email,
+      password
+    }
   });
 
   setAuthMode("login");
@@ -764,9 +632,12 @@ async function handleRegister(name, email, password) {
 }
 
 async function handleLogin(email, password) {
-  const data = await sendAuthRequest("/auth/login", {
-    email,
-    password
+  const data = await apiRequest("/auth/login", {
+    method: "POST",
+    body: {
+      email,
+      password
+    }
   });
 
   const token = extractToken(data);
@@ -811,35 +682,69 @@ function logout() {
   showScreen("library");
 }
 
-catalogForm.addEventListener("submit", (event) => {
+async function submitContent(title, text) {
+  return apiRequest("/content", {
+    method: "POST",
+    auth: true,
+    body: {
+      title,
+      text
+    }
+  });
+}
+
+function renderContentSuccess(response) {
+  successTitle.textContent = "Texto enviado com sucesso.";
+  successMessage.textContent = "O conteúdo foi processado pela API e salvo para consulta na biblioteca.";
+  successTags.innerHTML = "";
+
+  const tags = response?.additionalInformation || [];
+
+  tags.forEach((tag) => {
+    const span = document.createElement("span");
+    span.textContent = getTagLabel(tag);
+    successTags.appendChild(span);
+  });
+}
+
+catalogForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!requireAuthentication("Faça login para catalogar novos conteúdos.")) {
     return;
   }
 
+  clearContentFeedback();
+
   const formData = new FormData(catalogForm);
   const title = formData.get("title").trim();
   const text = formData.get("text").trim();
-  const informedCategory = formData.get("category");
-  const normalizedContent = normalizeText(`${title} ${text}`);
-  const category = informedCategory || suggestCategory(normalizedContent);
 
-  const newContent = {
-    id: createContentId(),
-    title,
-    text,
-    category,
-    probability: 0.8,
-    tags: suggestTags(title, text, category)
-  };
+  catalogSubmitButton.disabled = true;
+  catalogSubmitButton.textContent = "Enviando...";
 
-  const contents = getContents();
-  contents.unshift(newContent);
-  saveContents(contents);
+  try {
+    const response = await submitContent(title, text);
+    renderContentSuccess(response);
+    catalogForm.reset();
 
-  catalogForm.reset();
-  showScreen("success");
+    hasSearched = false;
+    loadedContents = [];
+    appliedTags = [];
+    selectedTags = [];
+    activeGroupKey = "";
+
+    renderTagGroups();
+    renderSubTags();
+    renderSelectedTags();
+
+    showScreen("success");
+  } catch (error) {
+    showContentFeedback(error.message || "Não foi possível enviar o conteúdo.");
+  } finally {
+    catalogSubmitButton.disabled = false;
+    catalogSubmitButton.textContent = "Catalogar conteúdo";
+  }
 });
 
 authForm.addEventListener("submit", async (event) => {
