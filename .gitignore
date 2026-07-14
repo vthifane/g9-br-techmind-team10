@@ -1,0 +1,32 @@
+# IDE
+.idea/
+.vscode/
+
+# Local Gradle files
+backend/.gradle/
+backend/build/
+
+# Environment variables
+.env
+*.env
+.env.*
+
+# Oracle wallet and sensitive database files
+wallet/
+backend/wallet/
+oracle-wallet/
+backend/oracle-wallet/
+*.p12
+*.sso
+*.jks
+tnsnames.ora
+ojdbc.properties
+sqlnet.ora
+cwallet.sso
+ewallet.p12
+keystore.jks
+truststore.jks
+
+# Local Oracle/OCI files
+*.pem
+*.key
