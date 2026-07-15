@@ -1,4 +1,10 @@
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = (() => {
+  const isLocalDevServer =
+    ["localhost", "127.0.0.1"].includes(window.location.hostname) &&
+    window.location.port === "5173";
+
+  return isLocalDevServer ? "http://localhost:8080" : "/api";
+})();
 const authStorageKey = "techmind.auth";
 
 const screens = {
