@@ -1,4 +1,4 @@
-package com.g9team10.backend.service;
+package com.g9team10.backend.repository;
 
 import com.g9team10.backend.model.Favorite;
 import com.g9team10.backend.model.FavoriteId;

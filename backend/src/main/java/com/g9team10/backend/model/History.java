@@ -1,11 +1,13 @@
 package com.g9team10.backend.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "history")
