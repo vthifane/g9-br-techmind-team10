@@ -1,8 +1,11 @@
 package com.g9team10.backend.controller;
 
+import com.g9team10.backend.dto.ContentDetailDTO;
 import com.g9team10.backend.dto.ContentRequestDTO;
 import com.g9team10.backend.dto.ContentResponseDTO;
+import com.g9team10.backend.model.User;
 import com.g9team10.backend.service.ContentService;
+import com.g9team10.backend.service.HistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class ContentController {
 
     private final ContentService contentService;
+    private final HistoryService historyService;
 
     @Operation(
             summary = "Analisar conteúdo",
@@ -35,10 +40,27 @@ public class ContentController {
             description = "Dados inválidos enviados na requisição"
     )
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
-    public ContentResponseDTO analysis(@RequestBody @Valid ContentRequestDTO request) {
-        return contentService.analysis(request);
+    public ResponseEntity<ContentResponseDTO> analysis(@RequestBody @Valid ContentRequestDTO request) {
+        return ResponseEntity.ok(contentService.analysis(request));
     }
 
-
+    @Operation(
+            summary = "Acessar conteúdo",
+            description = "Acessa conteúdo analisado e salvo no banco de dados."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Conteúdo encontrado",
+            content = @Content(schema = @Schema(implementation = ContentResponseDTO.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Conteúdo não encontrado"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<ContentDetailDTO> getContent(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        var content = contentService.find(id);
+        historyService.registerView(user, id);
+        return ResponseEntity.ok(ContentDetailDTO.fromEntity(content));
+    }
 }

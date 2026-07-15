@@ -4,6 +4,7 @@ import com.g9team10.backend.model.Content;
 import com.g9team10.backend.model.Favorite;
 import com.g9team10.backend.model.FavoriteId;
 import com.g9team10.backend.model.User;
+import com.g9team10.backend.repository.FavoriteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

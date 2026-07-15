@@ -9,6 +9,7 @@ import com.g9team10.backend.model.Content;
 import com.g9team10.backend.model.Tag;
 import com.g9team10.backend.repository.ContentRepository;
 import com.g9team10.backend.repository.TagRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class ContentService {
     private final TagRepository tagRepository;
     private final ContentRepository contentRepository;
 
+    @Transactional
     public ContentResponseDTO analysis(ContentRequestDTO request) {
         ModelPredictRequestDTO predictRequest = new ModelPredictRequestDTO(request.title(), request.text());
         ModelPredictResponseDTO response = modelPredictionService.predict(predictRequest);
