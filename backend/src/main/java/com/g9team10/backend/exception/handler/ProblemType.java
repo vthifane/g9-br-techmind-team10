@@ -8,6 +8,7 @@ public enum ProblemType {
     INVALID_REQUEST("/invalid-request", "Invalid request"),
     BUSINESS_ERROR("/business-error", "Business error"),
     INVALID_CREDENTIALS("/invalid-credentials", "Invalid credentials"),
+    RESOURCE_NOT_FOUND("/resource-not-found", "Resource not found"),
     ;
 
     private final String title;

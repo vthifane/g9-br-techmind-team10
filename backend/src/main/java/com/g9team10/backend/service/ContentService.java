@@ -4,6 +4,7 @@ import com.g9team10.backend.dto.ContentRequestDTO;
 import com.g9team10.backend.dto.ContentResponseDTO;
 import com.g9team10.backend.dto.ModelPredictRequestDTO;
 import com.g9team10.backend.dto.ModelPredictResponseDTO;
+import com.g9team10.backend.exception.ContentNotFoundException;
 import com.g9team10.backend.model.Content;
 import com.g9team10.backend.model.Tag;
 import com.g9team10.backend.repository.ContentRepository;
@@ -47,6 +48,11 @@ public class ContentService {
                 response.probability(),
                 response.tags()
         );
+    }
+
+    public Content find(Long contentId) {
+        return contentRepository.findById(contentId)
+                .orElseThrow(() -> new ContentNotFoundException(contentId));
     }
 
     private String normalizeTagKey(String value) {
