@@ -65,4 +65,11 @@ public class ContentController {
         historyService.registerView(user, id);
         return ResponseEntity.ok(ContentDetailDTO.fromEntity(content, trustProperties));
     }
+
+    @PutMapping("/{id}/tags")
+    public ResponseEntity<ContentDetailDTO> fixTags(@PathVariable Long id,
+                                                    @Valid @RequestBody CorrectionTagsRequestDTO request) {
+        var content = contentService.fixTags(id, request.tags());
+        return ResponseEntity.ok(ContentDetailDTO.fromEntity(content, trustProperties));
+    }
 }

@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public record ContentDetailDTO(Long id, String title, String text, String category, Double probability,
-                               Boolean lowConfidenceAlert, OffsetDateTime dateProcessing, List<String> tags) {
+                               Boolean lowConfidenceAlert, Boolean revised, OffsetDateTime dateProcessing, List<String> tags) {
     public static ContentDetailDTO fromEntity(Content content, TrustPropertiesConfig trustProperties) {
         return new ContentDetailDTO(content.getId(),
                 content.getTitle(),
@@ -16,6 +16,7 @@ public record ContentDetailDTO(Long id, String title, String text, String catego
                 content.getCategory(),
                 content.getProbability(),
                 trustProperties.isLowConfidence(content.getProbability()),
+                content.getRevised(),
                 content.getDateProcessing(),
                 content.getTags().stream()
                         .map(Tag::getName)
