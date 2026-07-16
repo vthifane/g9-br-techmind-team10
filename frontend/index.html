@@ -20,6 +20,8 @@
 
         <nav class="top-actions" aria-label="Ações principais">
             <button class="ghost-button" type="button" data-view="library">Biblioteca</button>
+            <button class="ghost-button" type="button" id="history-button">Histórico</button>
+            <button class="ghost-button" type="button" id="favorites-button">Favoritos</button>
             <button class="ghost-button" type="button" data-view="submit">Enviar conteúdo</button>
             <span class="user-status" id="user-status" hidden></span>
             <button class="login-button" type="button" id="auth-action-button">Login</button>
@@ -44,7 +46,8 @@
                         <h2>Refine sua pesquisa</h2>
                     </div>
 
-                    <button class="icon-button" type="button" id="toggle-search" aria-label="Adicionar tags manualmente">
+                    <button class="icon-button" type="button" id="toggle-search"
+                        aria-label="Adicionar tags manualmente">
                         🔎
                     </button>
                 </div>
@@ -146,7 +149,8 @@
 
                     <div class="form-group">
                         <label for="auth-password">Senha</label>
-                        <input id="auth-password" name="password" type="password" placeholder="Digite sua senha" required>
+                        <input id="auth-password" name="password" type="password" placeholder="Digite sua senha"
+                            required>
                     </div>
 
                     <div class="auth-feedback" id="auth-feedback" hidden></div>
@@ -169,7 +173,14 @@
         </section>
 
         <section class="document-page screen" id="document-screen" aria-labelledby="document-title">
-            <button class="back-button" type="button" data-view="library">Voltar para biblioteca</button>
+            <div class="document-actions">
+                <button class="back-button" type="button" data-view="library">Voltar para biblioteca</button>
+                <button class="ghost-button favorite-button" type="button" id="document-favorite-button">
+                    Favoritar conteúdo
+                </button>
+            </div>
+
+            <div class="document-feedback" id="document-feedback" hidden></div>
 
             <article class="document-view">
                 <p class="eyebrow" id="document-category">Categoria</p>

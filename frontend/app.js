@@ -5,6 +5,7 @@ const API_BASE_URL = (() => {
 
   return isLocalDevServer ? "http://localhost:8080" : "/api";
 })();
+
 const authStorageKey = "techmind.auth";
 
 const screens = {
@@ -32,11 +33,16 @@ const clearFiltersButton = document.querySelector("#clear-filters");
 const contentGrid = document.querySelector("#content-grid");
 const libraryEmpty = document.querySelector("#library-empty");
 const resultCount = document.querySelector("#result-count");
+const resultsTitle = document.querySelector("#results-title");
+const historyButton = document.querySelector("#history-button");
+const favoritesButton = document.querySelector("#favorites-button");
 
 const documentCategory = document.querySelector("#document-category");
 const documentTitle = document.querySelector("#document-title");
 const documentTags = document.querySelector("#document-tags");
 const documentText = document.querySelector("#document-text");
+const documentFavoriteButton = document.querySelector("#document-favorite-button");
+const documentFeedback = document.querySelector("#document-feedback");
 
 const authActionButton = document.querySelector("#auth-action-button");
 const userStatus = document.querySelector("#user-status");
@@ -65,6 +71,10 @@ let loadedContents = [];
 let hasSearched = false;
 let isLoadingContents = false;
 let libraryErrorMessage = "";
+let currentListMode = "search";
+let currentDocument = null;
+let favoriteContentIds = new Set();
+let isLoadingDocument = false;
 let authMode = "login";
 
 function getSession() {
@@ -95,6 +105,11 @@ function isAuthenticated() {
   return Boolean(session?.token);
 }
 
+function getAuthToken() {
+  const session = getSession();
+  return session?.token || "";
+}
+
 function requireAuthentication(message) {
   if (isAuthenticated()) {
     return true;
@@ -105,11 +120,6 @@ function requireAuthentication(message) {
   showAuthFeedback(message, "info");
 
   return false;
-}
-
-function getAuthToken() {
-  const session = getSession();
-  return session?.token || "";
 }
 
 function normalizeText(value) {
@@ -331,6 +341,62 @@ async function fetchContentsByTags(tags) {
   });
 }
 
+async function fetchContentDetail(contentId) {
+  return apiRequest(`/content/${contentId}`, {
+    auth: true
+  });
+}
+
+async function fetchFavorites() {
+  return apiRequest("/content/favorites", {
+    auth: true
+  });
+}
+
+async function fetchHistory() {
+  return apiRequest("/content/history", {
+    auth: true
+  });
+}
+
+async function favoriteContent(contentId) {
+  return apiRequest(`/content/${contentId}/favorite`, {
+    method: "POST",
+    auth: true
+  });
+}
+
+async function unfavoriteContent(contentId) {
+  return apiRequest(`/content/${contentId}/favorite`, {
+    method: "DELETE",
+    auth: true
+  });
+}
+
+async function submitContent(title, text) {
+  return apiRequest("/content", {
+    method: "POST",
+    auth: true,
+    body: {
+      title,
+      text
+    }
+  });
+}
+
+async function refreshFavoritesCache() {
+  if (!isAuthenticated()) {
+    favoriteContentIds = new Set();
+    return [];
+  }
+
+  const data = await fetchFavorites();
+  const favorites = Array.isArray(data) ? data : [];
+  favoriteContentIds = new Set(favorites.map((content) => Number(content.id)));
+
+  return favorites;
+}
+
 function showScreen(screenName) {
   if (screenName === "submit" && !requireAuthentication("Faça login para enviar novos conteúdos.")) {
     return;
@@ -461,6 +527,7 @@ async function applyFilters() {
     renderSelectedTags();
   }
 
+  currentListMode = "search";
   appliedTags = [...selectedTags];
   hasSearched = true;
   loadedContents = [];
@@ -490,6 +557,7 @@ function clearFilters() {
   selectedTags = [];
   appliedTags = [];
   activeGroupKey = "";
+  currentListMode = "search";
   hasSearched = false;
   loadedContents = [];
   libraryErrorMessage = "";
@@ -502,9 +570,56 @@ function clearFilters() {
   renderContents();
 }
 
+function getResultsTitle() {
+  if (currentListMode === "favorites") {
+    return "Favoritos";
+  }
+
+  if (currentListMode === "history") {
+    return "Histórico de leitura";
+  }
+
+  return "Conteúdos encontrados";
+}
+
+function getEmptyMessage() {
+  if (currentListMode === "favorites") {
+    return "Você ainda não favoritou nenhum conteúdo.";
+  }
+
+  if (currentListMode === "history") {
+    return "Seu histórico ainda está vazio. Abra algum conteúdo para registrá-lo aqui.";
+  }
+
+  return "Nenhum conteúdo encontrado para os filtros selecionados.";
+}
+
+function createContentCard(content) {
+  const card = document.createElement("button");
+  card.className = "content-card";
+  card.type = "button";
+
+  const summaryText = content.text || "Clique para abrir o conteúdo completo.";
+  const tagsMarkup = Array.isArray(content.tags) && content.tags.length > 0
+    ? `<div class="card-tags">${content.tags.slice(0, 4).map((tag) => `<span>${getTagLabel(tag)}</span>`).join("")}</div>`
+    : "";
+
+  card.innerHTML = `
+    <span class="content-category">${getCategoryLabel(content.category)}</span>
+    <strong>${content.title}</strong>
+    <p>${summaryText}</p>
+    ${tagsMarkup}
+  `;
+
+  card.addEventListener("click", () => openDocument(content.id));
+
+  return card;
+}
+
 function renderContents() {
   contentGrid.innerHTML = "";
   applyFiltersButton.disabled = isLoadingContents;
+  resultsTitle.textContent = getResultsTitle();
 
   if (libraryErrorMessage) {
     resultCount.textContent = "0 conteúdos";
@@ -513,14 +628,14 @@ function renderContents() {
     return;
   }
 
-  if (!hasSearched) {
+  if (currentListMode === "search" && !hasSearched) {
     resultCount.textContent = "0 conteúdos";
     libraryEmpty.textContent = "Selecione uma ou mais tags e clique em Filtrar para consultar a biblioteca.";
     libraryEmpty.classList.add("is-visible");
     return;
   }
 
-  if (appliedTags.length === 0) {
+  if (currentListMode === "search" && appliedTags.length === 0) {
     resultCount.textContent = "0 conteúdos";
     libraryEmpty.textContent = "Selecione pelo menos uma tag antes de iniciar a pesquisa.";
     libraryEmpty.classList.add("is-visible");
@@ -529,39 +644,29 @@ function renderContents() {
 
   if (isLoadingContents) {
     resultCount.textContent = "Buscando...";
-    libraryEmpty.textContent = "Consultando conteúdos na API.";
+    libraryEmpty.textContent = currentListMode === "search"
+      ? "Consultando conteúdos na API."
+      : "Carregando conteúdos da API.";
     libraryEmpty.classList.add("is-visible");
     return;
   }
 
   loadedContents.forEach((content) => {
-    const card = document.createElement("button");
-    card.className = "content-card";
-    card.type = "button";
-    card.innerHTML = `
-      <span class="content-category">${getCategoryLabel(content.category)}</span>
-      <strong>${content.title}</strong>
-      <p>${content.text}</p>
-      <div class="card-tags">
-        ${(content.tags || []).slice(0, 4).map((tag) => `<span>${getTagLabel(tag)}</span>`).join("")}
-      </div>
-    `;
-
-    card.addEventListener("click", () => openDocument(content));
-    contentGrid.appendChild(card);
+    contentGrid.appendChild(createContentCard(content));
   });
 
   resultCount.textContent = `${loadedContents.length} conteúdo${loadedContents.length === 1 ? "" : "s"}`;
 
   if (loadedContents.length === 0) {
-    libraryEmpty.textContent = "Nenhum conteúdo encontrado para os filtros selecionados.";
+    libraryEmpty.textContent = getEmptyMessage();
     libraryEmpty.classList.add("is-visible");
   } else {
     libraryEmpty.classList.remove("is-visible");
   }
 }
 
-function openDocument(content) {
+function renderDocument(content) {
+  currentDocument = content;
   documentCategory.textContent = getCategoryLabel(content.category);
   documentTitle.textContent = content.title;
   documentText.textContent = content.text;
@@ -569,7 +674,171 @@ function openDocument(content) {
     .map((tag) => `<span>${getTagLabel(tag)}</span>`)
     .join("");
 
+  updateDocumentFavoriteButton();
+}
+
+async function openDocument(contentId) {
+  if (!requireAuthentication("Faça login para acessar o conteúdo.")) {
+    return;
+  }
+
+  currentDocument = null;
+  isLoadingDocument = true;
+  clearDocumentFeedback();
+
+  documentCategory.textContent = "Carregando";
+  documentTitle.textContent = "Carregando conteúdo...";
+  documentText.textContent = "Buscando detalhe do conteúdo na API.";
+  documentTags.innerHTML = "";
+  updateDocumentFavoriteButton();
   showScreen("document");
+
+  try {
+    try {
+      await refreshFavoritesCache();
+    } catch (error) {
+      favoriteContentIds = new Set();
+    }
+
+    const content = await fetchContentDetail(contentId);
+    renderDocument(content);
+  } catch (error) {
+    documentCategory.textContent = "Erro";
+    documentTitle.textContent = "Não foi possível abrir o conteúdo";
+    documentText.textContent = error.message || "Tente novamente em alguns instantes.";
+    documentTags.innerHTML = "";
+  } finally {
+    isLoadingDocument = false;
+    updateDocumentFavoriteButton();
+  }
+}
+
+function updateDocumentFavoriteButton() {
+  if (!currentDocument?.id || isLoadingDocument) {
+    documentFavoriteButton.disabled = true;
+    documentFavoriteButton.textContent = isLoadingDocument ? "Carregando..." : "Favoritar conteúdo";
+    documentFavoriteButton.classList.remove("is-active");
+    return;
+  }
+
+  const contentId = Number(currentDocument.id);
+  const isFavorite = favoriteContentIds.has(contentId);
+
+  documentFavoriteButton.disabled = false;
+  documentFavoriteButton.textContent = isFavorite ? "Remover dos favoritos" : "Favoritar conteúdo";
+  documentFavoriteButton.classList.toggle("is-active", isFavorite);
+}
+
+function showDocumentFeedback(message, type = "info") {
+  documentFeedback.textContent = message;
+  documentFeedback.className = `document-feedback is-${type}`;
+  documentFeedback.hidden = false;
+}
+
+function clearDocumentFeedback() {
+  documentFeedback.textContent = "";
+  documentFeedback.className = "document-feedback";
+  documentFeedback.hidden = true;
+}
+
+async function toggleDocumentFavorite() {
+  if (!currentDocument?.id || !requireAuthentication("Faça login para favoritar conteúdos.")) {
+    return;
+  }
+
+  const contentId = Number(currentDocument.id);
+  const isFavorite = favoriteContentIds.has(contentId);
+
+  documentFavoriteButton.disabled = true;
+  clearDocumentFeedback();
+
+  try {
+    if (isFavorite) {
+      await unfavoriteContent(contentId);
+      favoriteContentIds.delete(contentId);
+
+      if (currentListMode === "favorites") {
+        loadedContents = loadedContents.filter((content) => Number(content.id) !== contentId);
+      }
+
+      showDocumentFeedback("Conteúdo removido dos favoritos.", "info");
+    } else {
+      await favoriteContent(contentId);
+      favoriteContentIds.add(contentId);
+      showDocumentFeedback("Conteúdo adicionado aos favoritos.", "success");
+    }
+
+    renderContents();
+  } catch (error) {
+    showDocumentFeedback(error.message || "Não foi possível atualizar os favoritos.", "error");
+  } finally {
+    updateDocumentFavoriteButton();
+  }
+}
+
+function resetLibraryFiltersForUserList() {
+  selectedTags = [];
+  appliedTags = [];
+  activeGroupKey = "";
+
+  clearManualSearch();
+
+  renderTagGroups();
+  renderSubTags();
+  renderSelectedTags();
+}
+
+async function loadFavoriteContents() {
+  if (!requireAuthentication("Faça login para consultar seus favoritos.")) {
+    return;
+  }
+
+  currentListMode = "favorites";
+  hasSearched = true;
+  loadedContents = [];
+  libraryErrorMessage = "";
+  isLoadingContents = true;
+
+  resetLibraryFiltersForUserList();
+  showScreen("library");
+
+  try {
+    const data = await fetchFavorites();
+    loadedContents = Array.isArray(data) ? data : [];
+    favoriteContentIds = new Set(loadedContents.map((content) => Number(content.id)));
+  } catch (error) {
+    loadedContents = [];
+    libraryErrorMessage = error.message || "Não foi possível carregar seus favoritos.";
+  } finally {
+    isLoadingContents = false;
+    renderContents();
+  }
+}
+
+async function loadHistoryContents() {
+  if (!requireAuthentication("Faça login para consultar seu histórico.")) {
+    return;
+  }
+
+  currentListMode = "history";
+  hasSearched = true;
+  loadedContents = [];
+  libraryErrorMessage = "";
+  isLoadingContents = true;
+
+  resetLibraryFiltersForUserList();
+  showScreen("library");
+
+  try {
+    const data = await fetchHistory();
+    loadedContents = Array.isArray(data) ? data : [];
+  } catch (error) {
+    loadedContents = [];
+    libraryErrorMessage = error.message || "Não foi possível carregar seu histórico.";
+  } finally {
+    isLoadingContents = false;
+    renderContents();
+  }
 }
 
 function setAuthMode(mode) {
@@ -659,6 +928,12 @@ async function handleLogin(email, password) {
     createdAt: new Date().toISOString()
   });
 
+  try {
+    await refreshFavoritesCache();
+  } catch (error) {
+    favoriteContentIds = new Set();
+  }
+
   renderAuthState();
   authForm.reset();
   showScreen("library");
@@ -683,20 +958,11 @@ function renderAuthState() {
 
 function logout() {
   clearSession();
+  favoriteContentIds = new Set();
+  currentDocument = null;
   renderAuthState();
   clearFilters();
   showScreen("library");
-}
-
-async function submitContent(title, text) {
-  return apiRequest("/content", {
-    method: "POST",
-    auth: true,
-    body: {
-      title,
-      text
-    }
-  });
 }
 
 function renderContentSuccess(response) {
@@ -739,6 +1005,7 @@ catalogForm.addEventListener("submit", async (event) => {
     appliedTags = [];
     selectedTags = [];
     activeGroupKey = "";
+    currentListMode = "search";
 
     renderTagGroups();
     renderSubTags();
@@ -829,6 +1096,9 @@ searchInput.addEventListener("keydown", (event) => {
 
 applyFiltersButton.addEventListener("click", applyFilters);
 clearFiltersButton.addEventListener("click", clearFilters);
+historyButton.addEventListener("click", loadHistoryContents);
+favoritesButton.addEventListener("click", loadFavoriteContents);
+documentFavoriteButton.addEventListener("click", toggleDocumentFavorite);
 
 document.querySelectorAll("[data-view]").forEach((button) => {
   button.addEventListener("click", () => {

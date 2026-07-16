@@ -394,7 +394,8 @@ textarea:focus {
 }
 
 .content-card {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.7rem;
   min-height: 220px;
   padding: 1rem;
@@ -417,6 +418,10 @@ textarea:focus {
   background: var(--surface-strong);
 }
 
+.content-card .content-category {
+  align-self: flex-start;
+}
+
 .content-card strong {
   display: block;
   font-size: 1.05rem;
@@ -426,6 +431,21 @@ textarea:focus {
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.content-card .card-tags {
+  margin-top: auto;
+  align-items: flex-start;
+}
+
+.content-card .card-tags span {
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .card-tags span,
@@ -577,6 +597,44 @@ textarea:focus {
 
 .back-button {
   margin: 1.5rem 0;
+}
+
+.document-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.document-actions .back-button {
+  margin: 0;
+}
+
+.favorite-button.is-active {
+  color: #063b36;
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.document-feedback {
+  max-width: 820px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.document-feedback.is-error {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.document-feedback.is-success,
+.document-feedback.is-info {
+  color: var(--primary-dark);
+  background: var(--surface-strong);
 }
 
 .document-view {
