@@ -1,6 +1,7 @@
 package com.g9team10.backend;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ class LoginControllerTest {
 	private MockMvc mockMvc;
 
 	@Test
+	@WithMockUser(username = "teste@teste.com", roles = {"USER"})
 	void deveLogarComSucesso() throws Exception {
 		String json = "{\"email\":\"teste@teste.com\", \"senha\":\"123456\"}";
 		mockMvc.perform(post("/login")
@@ -34,4 +36,13 @@ class LoginControllerTest {
 				.andExpect(status().isNotFound());
 	}
 
+	@Test
+    void deveAnalisarTextoComSucesso() throws Exception {
+        String json = "{\"texto\":\"Java\"}";
+        mockMvc.perform(post("/conteudos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isForbidden());
+    }
+	
 }
