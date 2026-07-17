@@ -1,7 +1,7 @@
 package com.g9team10.backend.dto;
 
 public record ContentCountDTO(
-        String categoy,
+        String category,
         Long total
 ) {
 }
