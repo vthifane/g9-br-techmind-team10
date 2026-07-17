@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -36,8 +38,7 @@ public class ContentService {
             for (String grossValue : tags) {
                 String normalizedValue = normalizeTagKey(grossValue);
 
-                Tag tag = tagRepository.findByName(normalizedValue)
-                        .orElseGet(() -> tagRepository.save(new Tag(normalizedValue)));
+                Tag tag = findOrCreateTag(normalizedValue);
 
                 content.addTag(tag);
             }
@@ -55,6 +56,28 @@ public class ContentService {
     public Content find(Long contentId) {
         return contentRepository.findById(contentId)
                 .orElseThrow(() -> new ContentNotFoundException(contentId));
+    }
+
+    @Transactional
+    public Content fixTags(Long id, List<String> fixedTags) {
+        Content content = find(id);
+
+        Set<Tag> normalizeTags = fixedTags.stream()
+                .map(this::normalizeTagKey)
+                .distinct()
+                .map(this::findOrCreateTag)
+                .collect(Collectors.toSet());
+
+        content.getTags().clear();
+        content.getTags().addAll(normalizeTags);
+        content.review();
+
+        return contentRepository.save(content);
+    }
+
+    private Tag findOrCreateTag(String normalizedValue) {
+        return tagRepository.findByName(normalizedValue)
+                .orElseGet(() -> tagRepository.save(new Tag(normalizedValue)));
     }
 
     private String normalizeTagKey(String value) {

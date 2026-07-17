@@ -3,6 +3,7 @@ package com.g9team10.backend.controller;
 import com.g9team10.backend.dto.ContentDetailDTO;
 import com.g9team10.backend.dto.ContentRequestDTO;
 import com.g9team10.backend.dto.ContentResponseDTO;
+import com.g9team10.backend.infra.config.TrustPropertiesConfig;
 import com.g9team10.backend.model.User;
 import com.g9team10.backend.service.ContentService;
 import com.g9team10.backend.service.HistoryService;
@@ -25,6 +26,7 @@ public class ContentController {
 
     private final ContentService contentService;
     private final HistoryService historyService;
+    private final TrustPropertiesConfig trustProperties;
 
     @Operation(
             summary = "Analisar conteúdo",
@@ -61,6 +63,13 @@ public class ContentController {
     public ResponseEntity<ContentDetailDTO> getContent(@PathVariable Long id, @AuthenticationPrincipal User user) {
         var content = contentService.find(id);
         historyService.registerView(user, id);
-        return ResponseEntity.ok(ContentDetailDTO.fromEntity(content));
+        return ResponseEntity.ok(ContentDetailDTO.fromEntity(content, trustProperties));
+    }
+
+    @PutMapping("/{id}/tags")
+    public ResponseEntity<ContentDetailDTO> fixTags(@PathVariable Long id,
+                                                    @Valid @RequestBody CorrectionTagsRequestDTO request) {
+        var content = contentService.fixTags(id, request.tags());
+        return ResponseEntity.ok(ContentDetailDTO.fromEntity(content, trustProperties));
     }
 }

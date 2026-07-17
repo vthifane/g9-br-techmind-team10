@@ -9,6 +9,7 @@ public enum ProblemType {
     BUSINESS_ERROR("/business-error", "Business error"),
     INVALID_CREDENTIALS("/invalid-credentials", "Invalid credentials"),
     RESOURCE_NOT_FOUND("/resource-not-found", "Resource not found"),
+    INCOMPREHENSIBLE_MESSAGE("/incomprehensible-message", "Incomprehensible message"),
     ;
 
     private final String title;

@@ -230,6 +230,16 @@ VALUES (
     TIMESTAMP '2026-06-12 12:00:00'
 );
 
+INSERT INTO content (id, title, text, category, probability, date_processing)
+VALUES (
+           13,
+           'Introdução ao Docker Compose',
+           'Visão geral sobre como orquestrar múltiplos containers utilizando Docker Compose.',
+           'cloud',
+           0.215,
+           TIMESTAMP '2026-06-13 09:30:00'
+       );
+
 INSERT INTO content_tag (content_id, tag_id) VALUES (1, 1);
 INSERT INTO content_tag (content_id, tag_id) VALUES (1, 2);
 INSERT INTO content_tag (content_id, tag_id) VALUES (1, 3);

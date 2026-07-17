@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,7 +26,23 @@ import java.util.List;
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final String GENERIC_ERROR_MESSAGE_END_USER
+            = "An unexpected internal error occurred in the system. " +
+              "Try again and if the problem persists, contact your system administrator";
+
     private final MessageSource messageSource;
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
+                                                                  HttpStatusCode status, WebRequest request) {
+        ProblemType problemType = ProblemType.INCOMPREHENSIBLE_MESSAGE;
+        String detail = "The request body is invalid. Check syntax error.";
+
+        Problem problem = createProblemBuilder(status, problemType, detail)
+                .userMessage(GENERIC_ERROR_MESSAGE_END_USER).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
