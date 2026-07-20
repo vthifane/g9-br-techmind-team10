@@ -67,9 +67,17 @@ public class ContentController {
     }
 
     @PutMapping("/{id}/tags")
-    public ResponseEntity<ContentDetailDTO> fixTags(@PathVariable Long id,
-                                                    @Valid @RequestBody CorrectionTagsRequestDTO request) {
+    public ResponseEntity<ContentDetailDTO> fixTags(
+            @PathVariable Long id,
+            @Valid @RequestBody CorrectionTagsRequestDTO request
+    ) {
         var content = contentService.fixTags(id, request.tags());
+        return ResponseEntity.ok(ContentDetailDTO.fromEntity(content, trustProperties));
+    }
+
+    @PatchMapping("/{id}/tags/confirm")
+    public ResponseEntity<ContentDetailDTO> confirmTags(@PathVariable Long id) {
+        var content = contentService.confirmTags(id);
         return ResponseEntity.ok(ContentDetailDTO.fromEntity(content, trustProperties));
     }
 }

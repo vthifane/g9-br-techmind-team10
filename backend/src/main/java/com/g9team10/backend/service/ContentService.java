@@ -64,12 +64,21 @@ public class ContentService {
 
         Set<Tag> normalizeTags = fixedTags.stream()
                 .map(this::normalizeTagKey)
+                .filter(tag -> !tag.isBlank())
                 .distinct()
                 .map(this::findOrCreateTag)
                 .collect(Collectors.toSet());
 
         content.getTags().clear();
         content.getTags().addAll(normalizeTags);
+        content.review();
+
+        return contentRepository.save(content);
+    }
+
+    @Transactional
+    public Content confirmTags(Long id) {
+        Content content = find(id);
         content.review();
 
         return contentRepository.save(content);

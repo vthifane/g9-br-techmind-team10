@@ -1,6 +1,7 @@
 package com.g9team10.backend.service;
 
 import com.g9team10.backend.dto.ContentSearchResponseDTO;
+import com.g9team10.backend.infra.config.TrustPropertiesConfig;
 import com.g9team10.backend.model.Content;
 import com.g9team10.backend.model.Tag;
 import com.g9team10.backend.repository.ContentSearchRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ContentSearchService {
 
     private final ContentSearchRepository contentSearchRepository;
+    private final TrustPropertiesConfig trustProperties;
 
     public List<ContentSearchResponseDTO> searchByTags(List<String> tags) {
         List<String> normalized = tags.stream()
@@ -22,6 +24,10 @@ public class ContentSearchService {
                 .filter(tag -> !tag.isBlank())
                 .distinct()
                 .toList();
+
+        if (normalized.isEmpty()) {
+            return List.of();
+        }
 
         List<Content> results = contentSearchRepository.findByAllTagNames(normalized, normalized.size());
 
@@ -32,6 +38,8 @@ public class ContentSearchService {
                         content.getText(),
                         content.getCategory(),
                         content.getProbability(),
+                        trustProperties.isLowConfidence(content.getProbability()),
+                        content.getRevised(),
                         content.getTags().stream().map(Tag::getName).toList()
                 ))
                 .toList();
