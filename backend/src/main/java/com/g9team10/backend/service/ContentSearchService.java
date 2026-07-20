@@ -22,8 +22,10 @@ public class ContentSearchService {
                 .filter(tag -> !tag.isBlank())
                 .distinct()
                 .toList();
+        String normalizedLevel = normalizeLevel(level);
 
-        List<Content> results = contentSearchRepository.findByAllTagNames(normalized, normalized.size());
+        List<Content> results = contentSearchRepository.findByAllTagNames(normalized, normalized.size(), normalizedLevel
+        );
 
         return results.stream()
                 .map(content -> new ContentSearchResponseDTO(
@@ -31,10 +33,18 @@ public class ContentSearchService {
                         content.getTitle(),
                         content.getText(),
                         content.getCategory(),
+                        content.getLevel(),
                         content.getProbability(),
                         content.getTags().stream().map(Tag::getName).toList()
                 ))
                 .toList();
+    }
+
+    private String normalizeLevel(String level) {
+        if (level == null || level.isBlank()) {
+            return null;
+        }
+        return normalizeTagKey(level);
     }
 
     private String normalizeTagKey(String value) {

@@ -7,6 +7,7 @@ public record ContentSearchResponseDTO(
         String title,
         String text,
         String category,
+        String level,
         Double probability,
         List<String> tags
 ) {

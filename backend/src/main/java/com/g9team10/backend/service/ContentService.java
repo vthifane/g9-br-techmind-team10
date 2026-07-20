@@ -23,15 +23,30 @@ import java.util.stream.Collectors;
 public class ContentService {
 
     private final ModelPredictionService modelPredictionService;
+
+    private final LevelClassificationService levelClassificationService;
+
     private final TagRepository tagRepository;
     private final ContentRepository contentRepository;
 
     @Transactional
     public ContentResponseDTO analysis(ContentRequestDTO request) {
-        ModelPredictRequestDTO predictRequest = new ModelPredictRequestDTO(request.title(), request.text());
-        ModelPredictResponseDTO response = modelPredictionService.predict(predictRequest);
+
+        ModelPredictRequestDTO predictRequest =
+                new ModelPredictRequestDTO(request.title(), request.text());
+
+        ModelPredictResponseDTO response =
+                modelPredictionService.predict(predictRequest);
+
+        String level = levelClassificationService.classify(
+                request.title(),
+                request.text()
+        );
 
         Content content = new Content(request, response);
+
+        content.setLevel(level);
+
         List<String> tags = response.tags();
 
         if (tags != null) {
@@ -49,7 +64,8 @@ public class ContentService {
         return new ContentResponseDTO(
                 response.category(),
                 response.probability(),
-                response.tags()
+                response.tags(),
+                level
         );
     }
 

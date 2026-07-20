@@ -24,7 +24,7 @@ public class Content {
     private String text;
     private String category;
     private Double probability;
-    private Boolean revised = Boolean.FALSE;
+    private String level;
     @CreationTimestamp
     private OffsetDateTime dateProcessing;
 
@@ -47,7 +47,7 @@ public class Content {
         getTags().add(tag);
     }
 
-    public void review() {
-        this.revised = Boolean.TRUE;
+    public void setLevel(String level) {
+        this.level = level;
     }
 }

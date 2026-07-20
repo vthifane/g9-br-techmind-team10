@@ -6,13 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
 public class ModelClientService implements  ModelPredictionService{
-
+    @Qualifier("modelWebClient")
     private final WebClient webClient;
 
     @Override

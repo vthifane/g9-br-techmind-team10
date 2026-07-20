@@ -22,5 +22,5 @@ public interface ContentSearchRepository extends JpaRepository<Content, Long> {
         )
         ORDER BY c.dateProcessing DESC
     """)
-    List<Content> findByAllTagNames(@Param("tags") List<String> tags, @Param("qtdTags") long qtdTags);
+    List<Content> findByAllTagNames(@Param("tags") List<String> tags, @Param("qtdTags") long qtdTags, content.getLevel());
 }
