@@ -182,12 +182,63 @@
 
             <div class="document-feedback" id="document-feedback" hidden></div>
 
-            <article class="document-view">
-                <p class="eyebrow" id="document-category">Categoria</p>
-                <h2 id="document-title">Título do documento</h2>
-                <div class="document-tags" id="document-tags"></div>
-                <p id="document-text"></p>
-            </article>
+            <div class="document-layout">
+                <article class="document-view">
+                    <p class="eyebrow" id="document-category">Categoria</p>
+                    <h2 id="document-title">Título do documento</h2>
+                    <div class="document-tags" id="document-tags"></div>
+                    <p id="document-text"></p>
+                </article>
+
+                <aside class="document-review-panel" id="document-review-panel" hidden
+                    aria-label="Revisão de baixa confiança">
+                    <div class="review-panel-header">
+                        <div>
+                            <p class="review-panel-label">Revisão de tags</p>
+                            <h3 id="document-review-title">Classificação com baixa confiança</h3>
+                        </div>
+                        <span class="review-status" id="document-review-status">Revisão pendente</span>
+                    </div>
+
+                    <p class="review-panel-message" id="document-review-message">
+                        Este conteúdo foi classificado com baixa confiança. Confira se as tags sugeridas estão corretas.
+                    </p>
+
+                    <div class="review-meta">
+                        <span id="document-confidence">Confiança: --</span>
+                    </div>
+
+                    <div class="review-actions">
+                        <button class="ghost-button" type="button" id="confirm-tags-button">
+                            As tags estão corretas
+                        </button>
+                    </div>
+
+                    <form class="tag-correction-form" id="tag-correction-form">
+                        <div>
+                            <p class="review-panel-label">Corrigir tags globais</p>
+                            <h3>Selecione as tags corretas</h3>
+                            <small>Use apenas as tags disponíveis no catálogo.</small>
+                        </div>
+
+                        <div class="correction-selected-tags" id="correction-selected-tags">
+                            <span class="muted-text">Nenhuma tag selecionada.</span>
+                        </div>
+
+                        <div class="correction-tag-groups" id="correction-tag-group-list"
+                            aria-label="Categorias disponíveis para correção"></div>
+
+                        <div class="correction-subtag-section" id="correction-subtag-section" hidden>
+                            <div class="correction-subtag-list" id="correction-subtag-list"
+                                aria-label="Tags disponíveis para correção"></div>
+                        </div>
+
+                        <button class="primary-button" type="submit" id="correction-tags-button">
+                            Enviar tags corrigidas
+                        </button>
+                    </form>
+                </aside>
+            </div>
         </section>
     </main>
 

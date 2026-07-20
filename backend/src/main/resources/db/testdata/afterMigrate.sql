@@ -294,3 +294,6 @@ INSERT INTO content_tag (content_id, tag_id) VALUES (11, 36);
 INSERT INTO content_tag (content_id, tag_id) VALUES (12, 31);
 INSERT INTO content_tag (content_id, tag_id) VALUES (12, 33);
 INSERT INTO content_tag (content_id, tag_id) VALUES (12, 36);
+
+INSERT INTO content_tag (content_id, tag_id) VALUES (13, 19);
+INSERT INTO content_tag (content_id, tag_id) VALUES (13, 22);

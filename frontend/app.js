@@ -43,6 +43,18 @@ const documentTags = document.querySelector("#document-tags");
 const documentText = document.querySelector("#document-text");
 const documentFavoriteButton = document.querySelector("#document-favorite-button");
 const documentFeedback = document.querySelector("#document-feedback");
+const documentReviewPanel = document.querySelector("#document-review-panel");
+const documentReviewTitle = document.querySelector("#document-review-title");
+const documentReviewMessage = document.querySelector("#document-review-message");
+const documentConfidence = document.querySelector("#document-confidence");
+const documentReviewStatus = document.querySelector("#document-review-status");
+const confirmTagsButton = document.querySelector("#confirm-tags-button");
+const tagCorrectionForm = document.querySelector("#tag-correction-form");
+const correctionSelectedTagsContainer = document.querySelector("#correction-selected-tags");
+const correctionTagGroupList = document.querySelector("#correction-tag-group-list");
+const correctionSubtagSection = document.querySelector("#correction-subtag-section");
+const correctionSubtagList = document.querySelector("#correction-subtag-list");
+const correctionTagsButton = document.querySelector("#correction-tags-button");
 
 const authActionButton = document.querySelector("#auth-action-button");
 const userStatus = document.querySelector("#user-status");
@@ -76,6 +88,9 @@ let currentDocument = null;
 let favoriteContentIds = new Set();
 let isLoadingDocument = false;
 let authMode = "login";
+let correctionSelectedTags = [];
+let correctionActiveGroupKey = "";
+let isReviewActionLoading = false;
 
 function getSession() {
   const saved = localStorage.getItem(authStorageKey);
@@ -327,6 +342,10 @@ async function fetchTags() {
   renderSubTags();
   renderSelectedTags();
   renderContents();
+
+  if (currentDocument) {
+    renderDocumentReview(currentDocument);
+  }
 }
 
 async function fetchContentsByTags(tags) {
@@ -373,6 +392,23 @@ async function unfavoriteContent(contentId) {
   });
 }
 
+async function confirmContentTags(contentId) {
+  return apiRequest(`/content/${contentId}/tags/confirm`, {
+    method: "PATCH",
+    auth: true
+  });
+}
+
+async function updateContentTags(contentId, tags) {
+  return apiRequest(`/content/${contentId}/tags`, {
+    method: "PUT",
+    auth: true,
+    body: {
+      tags
+    }
+  });
+}
+
 async function submitContent(title, text) {
   return apiRequest("/content", {
     method: "POST",
@@ -395,6 +431,163 @@ async function refreshFavoritesCache() {
   favoriteContentIds = new Set(favorites.map((content) => Number(content.id)));
 
   return favorites;
+}
+
+function hasPendingLowConfidence(content) {
+  return Boolean(content?.lowConfidenceAlert) && content?.revised !== true;
+}
+
+function formatConfidence(probability) {
+  if (typeof probability !== "number") {
+    return "Confiança não informada";
+  }
+
+  return `Confiança: ${new Intl.NumberFormat("pt-BR", {
+    style: "percent",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1
+  }).format(probability)}`;
+}
+
+function getUniqueTagKeys(tagKeys) {
+  return [...new Set((tagKeys || []).filter(Boolean))];
+}
+
+function isReviewFormEditable() {
+  return Boolean(currentDocument?.id) && hasPendingLowConfidence(currentDocument) && !isReviewActionLoading;
+}
+
+function setCorrectionSelectedTags(tagKeys = []) {
+  correctionSelectedTags = getUniqueTagKeys(tagKeys);
+  renderCorrectionTags();
+}
+
+function addCorrectionTagToSelection(tagKey) {
+  if (!correctionSelectedTags.includes(tagKey)) {
+    correctionSelectedTags = [...correctionSelectedTags, tagKey];
+  }
+}
+
+function toggleCorrectionSelectedTag(tagKey) {
+  if (!isReviewFormEditable()) {
+    return;
+  }
+
+  if (correctionSelectedTags.includes(tagKey)) {
+    correctionSelectedTags = correctionSelectedTags.filter((key) => key !== tagKey);
+  } else {
+    correctionSelectedTags = [...correctionSelectedTags, tagKey];
+  }
+
+  renderCorrectionTags();
+}
+
+function renderCorrectionSelectedTags() {
+  correctionSelectedTagsContainer.innerHTML = "";
+
+  if (correctionSelectedTags.length === 0) {
+    correctionSelectedTagsContainer.innerHTML = '<span class="muted-text">Nenhuma tag selecionada.</span>';
+    return;
+  }
+
+  correctionSelectedTags.forEach((tagKey) => {
+    const button = document.createElement("button");
+    button.className = "selected-tag";
+    button.type = "button";
+    button.disabled = !isReviewFormEditable();
+    button.innerHTML = `${getTagLabel(tagKey)} <span aria-hidden="true">×</span>`;
+    button.setAttribute("aria-label", `Remover tag ${getTagLabel(tagKey)}`);
+
+    button.addEventListener("click", () => toggleCorrectionSelectedTag(tagKey));
+
+    correctionSelectedTagsContainer.appendChild(button);
+  });
+}
+
+function renderCorrectionTagGroups() {
+  correctionTagGroupList.innerHTML = "";
+
+  if (tagCatalog.length === 0) {
+    correctionTagGroupList.innerHTML = '<span class="muted-text">Catálogo de tags indisponível.</span>';
+    return;
+  }
+
+  tagCatalog.forEach((group) => {
+    const button = document.createElement("button");
+    button.className = "tag-group-button";
+    button.type = "button";
+    button.textContent = group.label;
+    button.disabled = !isReviewFormEditable();
+
+    const isOpen = group.key === correctionActiveGroupKey;
+    const hasSelectedTag =
+      correctionSelectedTags.includes(group.key) ||
+      (group.subTags || []).some((tag) => correctionSelectedTags.includes(tag.key));
+
+    button.classList.toggle("is-active", isOpen);
+    button.classList.toggle("is-selected", hasSelectedTag);
+
+    button.addEventListener("click", () => {
+      if (!isReviewFormEditable()) {
+        return;
+      }
+
+      addCorrectionTagToSelection(group.key);
+      correctionActiveGroupKey = correctionActiveGroupKey === group.key ? "" : group.key;
+
+      renderCorrectionTags();
+    });
+
+    correctionTagGroupList.appendChild(button);
+  });
+}
+
+function renderCorrectionSubTags() {
+  const activeGroup = tagCatalog.find((group) => group.key === correctionActiveGroupKey);
+  correctionSubtagList.innerHTML = "";
+
+  if (!activeGroup) {
+    correctionSubtagSection.hidden = true;
+    return;
+  }
+
+  correctionSubtagSection.hidden = false;
+
+  (activeGroup.subTags || []).forEach((tag) => {
+    const button = document.createElement("button");
+    button.className = "tag-chip";
+    button.type = "button";
+    button.textContent = tag.label;
+    button.disabled = !isReviewFormEditable();
+    button.classList.toggle("is-selected", correctionSelectedTags.includes(tag.key));
+
+    button.addEventListener("click", () => toggleCorrectionSelectedTag(tag.key));
+
+    correctionSubtagList.appendChild(button);
+  });
+}
+
+function renderCorrectionTags() {
+  renderCorrectionSelectedTags();
+  renderCorrectionTagGroups();
+  renderCorrectionSubTags();
+}
+
+function updateLoadedContent(updatedContent) {
+  if (!updatedContent?.id) {
+    return;
+  }
+
+  loadedContents = loadedContents.map((content) => {
+    if (Number(content.id) !== Number(updatedContent.id)) {
+      return content;
+    }
+
+    return {
+      ...content,
+      ...updatedContent
+    };
+  });
 }
 
 function showScreen(screenName) {
@@ -596,16 +789,24 @@ function getEmptyMessage() {
 
 function createContentCard(content) {
   const card = document.createElement("button");
-  card.className = "content-card";
+  const needsReview = hasPendingLowConfidence(content);
+
+  card.className = needsReview ? "content-card needs-review" : "content-card";
   card.type = "button";
 
   const summaryText = content.text || "Clique para abrir o conteúdo completo.";
   const tagsMarkup = Array.isArray(content.tags) && content.tags.length > 0
     ? `<div class="card-tags">${content.tags.slice(0, 4).map((tag) => `<span>${getTagLabel(tag)}</span>`).join("")}</div>`
     : "";
+  const reviewBadge = needsReview
+    ? '<span class="review-badge">Baixa confiança</span>'
+    : "";
 
   card.innerHTML = `
-    <span class="content-category">${getCategoryLabel(content.category)}</span>
+    <div class="card-topline">
+      <span class="content-category">${getCategoryLabel(content.category)}</span>
+      ${reviewBadge}
+    </div>
     <strong>${content.title}</strong>
     <p>${summaryText}</p>
     ${tagsMarkup}
@@ -674,7 +875,54 @@ function renderDocument(content) {
     .map((tag) => `<span>${getTagLabel(tag)}</span>`)
     .join("");
 
+  renderDocumentReview(content);
   updateDocumentFavoriteButton();
+}
+
+function renderDocumentReview(content) {
+  const hasTrustData = Boolean(content?.lowConfidenceAlert) ||
+    typeof content?.probability === "number" ||
+    content?.revised === true;
+
+  if (!hasTrustData) {
+    documentReviewPanel.hidden = true;
+    correctionSelectedTags = [];
+    correctionActiveGroupKey = "";
+    renderCorrectionTags();
+    return;
+  }
+
+  const pendingReview = hasPendingLowConfidence(content);
+  const revised = content?.revised === true;
+
+  documentReviewPanel.hidden = false;
+  documentReviewPanel.classList.toggle("is-warning", pendingReview);
+  documentReviewPanel.classList.toggle("is-reviewed", revised);
+
+  documentReviewTitle.textContent = pendingReview
+    ? "Classificação com baixa confiança"
+    : "Classificação revisada";
+
+  documentReviewMessage.textContent = pendingReview
+    ? "Este conteúdo foi classificado com baixa confiança. Confira as tags sugeridas e confirme ou selecione as tags corretas no catálogo."
+    : "As tags deste conteúdo já foram revisadas ou confirmadas.";
+
+  documentConfidence.textContent = formatConfidence(content.probability);
+  documentReviewStatus.textContent = revised ? "Tags revisadas" : "Revisão pendente";
+
+  confirmTagsButton.hidden = !pendingReview;
+  confirmTagsButton.disabled = !pendingReview || isReviewActionLoading;
+  tagCorrectionForm.hidden = !pendingReview;
+  correctionTagsButton.disabled = !pendingReview || isReviewActionLoading;
+
+  if (pendingReview) {
+    correctionSelectedTags = getUniqueTagKeys(content.tags || correctionSelectedTags);
+  } else {
+    correctionSelectedTags = [];
+    correctionActiveGroupKey = "";
+  }
+
+  renderCorrectionTags();
 }
 
 async function openDocument(contentId) {
@@ -690,6 +938,10 @@ async function openDocument(contentId) {
   documentTitle.textContent = "Carregando conteúdo...";
   documentText.textContent = "Buscando detalhe do conteúdo na API.";
   documentTags.innerHTML = "";
+  documentReviewPanel.hidden = true;
+  correctionSelectedTags = [];
+  correctionActiveGroupKey = "";
+  renderCorrectionTags();
   updateDocumentFavoriteButton();
   showScreen("document");
 
@@ -707,6 +959,7 @@ async function openDocument(contentId) {
     documentTitle.textContent = "Não foi possível abrir o conteúdo";
     documentText.textContent = error.message || "Tente novamente em alguns instantes.";
     documentTags.innerHTML = "";
+    documentReviewPanel.hidden = true;
   } finally {
     isLoadingDocument = false;
     updateDocumentFavoriteButton();
@@ -772,6 +1025,73 @@ async function toggleDocumentFavorite() {
   } catch (error) {
     showDocumentFeedback(error.message || "Não foi possível atualizar os favoritos.", "error");
   } finally {
+    updateDocumentFavoriteButton();
+  }
+}
+
+async function handleConfirmTags() {
+  if (!currentDocument?.id || !requireAuthentication("Faça login para confirmar as tags.")) {
+    return;
+  }
+
+  isReviewActionLoading = true;
+  confirmTagsButton.disabled = true;
+  correctionTagsButton.disabled = true;
+  renderCorrectionTags();
+  clearDocumentFeedback();
+
+  try {
+    const updatedContent = await confirmContentTags(currentDocument.id);
+    renderDocument(updatedContent);
+    updateLoadedContent(updatedContent);
+    renderContents();
+    showDocumentFeedback("Tags confirmadas como corretas.", "success");
+  } catch (error) {
+    showDocumentFeedback(error.message || "Não foi possível confirmar as tags.", "error");
+  } finally {
+    isReviewActionLoading = false;
+    if (currentDocument) {
+      renderDocumentReview(currentDocument);
+    }
+    updateDocumentFavoriteButton();
+  }
+}
+
+async function handleTagCorrection(event) {
+  event.preventDefault();
+
+  if (!currentDocument?.id || !requireAuthentication("Faça login para corrigir as tags.")) {
+    return;
+  }
+
+  const tags = [...correctionSelectedTags];
+
+  if (tags.length === 0) {
+    showDocumentFeedback("Selecione pelo menos uma tag para corrigir o conteúdo.", "error");
+    return;
+  }
+
+  isReviewActionLoading = true;
+  confirmTagsButton.disabled = true;
+  correctionTagsButton.disabled = true;
+  correctionTagsButton.textContent = "Enviando...";
+  renderCorrectionTags();
+  clearDocumentFeedback();
+
+  try {
+    const updatedContent = await updateContentTags(currentDocument.id, tags);
+    renderDocument(updatedContent);
+    updateLoadedContent(updatedContent);
+    renderContents();
+    showDocumentFeedback("Tags corrigidas com sucesso.", "success");
+  } catch (error) {
+    showDocumentFeedback(error.message || "Não foi possível corrigir as tags.", "error");
+  } finally {
+    isReviewActionLoading = false;
+    correctionTagsButton.textContent = "Enviar tags corrigidas";
+    if (currentDocument) {
+      renderDocumentReview(currentDocument);
+    }
     updateDocumentFavoriteButton();
   }
 }
@@ -1099,6 +1419,8 @@ clearFiltersButton.addEventListener("click", clearFilters);
 historyButton.addEventListener("click", loadHistoryContents);
 favoritesButton.addEventListener("click", loadFavoriteContents);
 documentFavoriteButton.addEventListener("click", toggleDocumentFavorite);
+confirmTagsButton.addEventListener("click", handleConfirmTags);
+tagCorrectionForm.addEventListener("submit", handleTagCorrection);
 
 document.querySelectorAll("[data-view]").forEach((button) => {
   button.addEventListener("click", () => {
