@@ -7,7 +7,6 @@ public record ContentSearchResponseDTO(
         String title,
         String text,
         String category,
-        String level,
         Double probability,
         Boolean lowConfidenceAlert,
         Boolean revised,

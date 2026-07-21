@@ -23,8 +23,7 @@ public class ContentSearchController {
 
     @Operation(
             summary = "Busca conteúdo",
-            description = "Busca um conteúdo já classificado por meio das tags e, opcionalmente, "
-                    + "do nível de conhecimento (basico, intermediario ou avancado)."
+            description = "Busca um conteúdo, já classificado, por meio das tags "
     )
     @ApiResponse(
             responseCode = "200",
@@ -38,7 +37,6 @@ public class ContentSearchController {
     )
     @GetMapping("/content/search")
     public List<ContentSearchResponseDTO> search(@RequestParam List<String> tags) {
-        return contentSearchService.searchByTags(tags, level);
-        @RequestParam(required = false) String level
+        return contentSearchService.searchByTags(tags);
     }
 }

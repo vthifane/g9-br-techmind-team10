@@ -24,7 +24,7 @@ public class ContentHistoryController {
     public ResponseEntity<List<ContentSummaryDTO>> listFavorites(@AuthenticationPrincipal User user){
         List<Content> history = historyService.list(user.getId());
         List<ContentSummaryDTO> response = history.stream()
-                .map(content -> new ContentSummaryDTO(content.getId(), content.getTitle(), content.getCategory(), content.getLevel()))
+                .map(content -> new ContentSummaryDTO(content.getId(), content.getTitle(), content.getCategory()))
                 .toList();
 
         return ResponseEntity.ok(response);

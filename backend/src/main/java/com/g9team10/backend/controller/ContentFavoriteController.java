@@ -34,7 +34,7 @@ public class ContentFavoriteController {
     public ResponseEntity<List<ContentSummaryDTO>> listFavorites(@AuthenticationPrincipal User user){
         List<Content> favorites = favoriteService.list(user.getId());
         List<ContentSummaryDTO> response = favorites.stream()
-                .map(content -> new ContentSummaryDTO(content.getId(), content.getTitle(), content.getCategory(), content.getLevel()))
+                .map(content -> new ContentSummaryDTO(content.getId(), content.getTitle(), content.getCategory()))
                 .toList();
 
         return ResponseEntity.ok(response);
